@@ -5,21 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ordersApi } from "@/lib/api";
-import { formatMmk, formatDate } from "@/lib/utils";
+import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
+import { statusVariant } from "@/lib/constants";
 import type { DigitalOrder } from "@/types";
 import { toast } from "sonner";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AxiosError } from "axios";
-
-const statusVariant = (s: string) => {
-  switch (s.toLowerCase()) {
-    case "success": return "success" as const;
-    case "pending": return "warning" as const;
-    case "cancelled": return "destructive" as const;
-    default: return "secondary" as const;
-  }
-};
 
 export default function AdminDigitalOrdersPage() {
   const [orders, setOrders] = useState<DigitalOrder[]>([]);
@@ -54,14 +45,8 @@ export default function AdminDigitalOrdersPage() {
       await ordersApi.deliverDigitalOrderAdmin(id);
       toast.success("Digital order delivered");
       load();
-    } catch (e: unknown) {
-      if (e instanceof AxiosError && e.response?.data?.message) {
-        toast.error(e.response.data.message);
-      } else if (e instanceof Error) {
-        toast.error(e.message);
-      } else {
-        toast.error("Failed to deliver digital order");
-      }
+    } catch (err) {
+      toast.error(errorMessage(err));
     }
   };
 
@@ -71,14 +56,8 @@ export default function AdminDigitalOrdersPage() {
       await ordersApi.cancelDigitalOrderAdmin(id);
       toast.success("Digital order cancelled");
       load();
-    } catch (e: unknown) {
-      if (e instanceof AxiosError && e.response?.data?.message) {
-        toast.error(e.response.data.message);
-      } else if (e instanceof Error) {
-        toast.error(e.message);
-      } else {
-        toast.error("Failed to cancel digital order");
-      }
+    } catch (err) {
+      toast.error(errorMessage(err));
     }
   };
 

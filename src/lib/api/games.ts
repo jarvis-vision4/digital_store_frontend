@@ -38,6 +38,14 @@ export async function addPackageAdmin(gameId: string, dto: CreatePackageDto): Pr
   await apiClient.post(`/admin/games/${gameId}/packages`, dto);
 }
 
+export async function deletePackageAdmin(gameId: string, pkgId: number): Promise<void> {
+  await apiClient.delete(`/admin/games/${gameId}/packages/${pkgId}`);
+}
+
+export async function updatePackageAdmin(pkgId: number, dto: Partial<CreatePackageDto> & { isActive?: boolean }): Promise<void> {
+  await apiClient.put(`/admin/packages/${pkgId}`, dto);
+}
+
 export async function getDigitalProducts(): Promise<DigitalProduct[]> {
   const { data } = await apiClient.get<DigitalProduct[]>("/digital-products");
   return data;

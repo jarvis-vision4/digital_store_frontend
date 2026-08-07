@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { authApi } from "@/lib/api";
-import { formatMmk, formatDate } from "@/lib/utils";
+import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import { User, Shield, Copy, Check, Users, Gift, RefreshCw } from "lucide-react";
+import { copyToClipboard } from "@/components/copy-button";
 import type { ReferralInfo } from "@/types";
 
 export default function ProfilePage() {
@@ -52,9 +53,8 @@ export default function ProfilePage() {
       toast.success("Password changed successfully!");
       setCurrentPassword("");
       setNewPassword("");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to change password";
-      toast.error(message);
+    } catch (err) {
+      toast.error(errorMessage(err));
     } finally {
       setIsChangingPassword(false);
     }
@@ -62,18 +62,7 @@ export default function ProfilePage() {
 
   const copyReferral = async () => {
     if (!user?.referralCode) return;
-    try {
-      await navigator.clipboard.writeText(user.referralCode);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = user.referralCode;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    }
+    await copyToClipboard(user.referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success("Referral code copied!");

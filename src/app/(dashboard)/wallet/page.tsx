@@ -10,10 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { walletApi, authApi, settingsApi } from "@/lib/api";
-import { formatMmk, formatDate } from "@/lib/utils";
+import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
+import { statusVariant } from "@/lib/constants";
+import { CopyButton, copyToClipboard } from "@/components/copy-button";
 import type { WalletTransaction } from "@/types";
 import { toast } from "sonner";
-import { Wallet, Copy, Check, RefreshCw } from "lucide-react";
+import { Wallet, RefreshCw, Check, Copy } from "lucide-react";
 import Image from "next/image";
 
 const paymentMethods = [
@@ -22,25 +24,6 @@ const paymentMethods = [
   { key: "AYA Pay", image: "/photos/aya.jpeg", numberKey: "ayaPayNumber" },
   { key: "UAB Pay", image: "/photos/uab.png", numberKey: "uabPayNumber" },
 ];
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast.success("Copied");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy");
-    }
-  };
-  return (
-    <Button variant="ghost" size="icon" onClick={handleCopy} type="button">
-      {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-    </Button>
-  );
-}
 
 export default function WalletPage() {
   const [balance, setBalance] = useState<number>(0);
@@ -97,9 +80,8 @@ export default function WalletPage() {
       toast.success("Deposit request submitted! Awaiting approval.");
       setAmount("");
       setPhone("");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Deposit failed";
-      toast.error(message);
+    } catch (err) {
+      toast.error(errorMessage(err));
     } finally {
       setIsDepositing(false);
     }
@@ -112,9 +94,8 @@ export default function WalletPage() {
       await walletApi.redeemCoupon({ code: couponCode });
       toast.success("Coupon redeemed successfully!");
       setCouponCode("");
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to redeem coupon";
-      toast.error(message);
+    } catch (err) {
+      toast.error(errorMessage(err));
     } finally {
       setIsRedeeming(false);
     }
@@ -122,33 +103,10 @@ export default function WalletPage() {
 
   const copyReferral = async () => {
     if (!referralCode) return;
-    try {
-      await navigator.clipboard.writeText(referralCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast.success("Referral code copied!");
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = referralCode;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast.success("Referral code copied!");
-    }
-  };
-
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case "Success": return "success" as const;
-      case "Pending": return "warning" as const;
-      case "Cancelled": return "secondary" as const;
-      default: return "secondary" as const;
-    }
+    await copyToClipboard(referralCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success("Referral code copied!");
   };
 
   return (

@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client";
+import { adminApi } from "@/lib/api";
 import { formatMmk, formatDate } from "@/lib/utils";
 import type { User } from "@/types";
 import { toast } from "sonner";
@@ -27,9 +27,8 @@ export default function AdminUsersPage() {
 
   const loadUsers = () => {
     setIsLoading(true);
-    apiClient
-      .get<User[]>("/admin/users")
-      .then((res) => setUsers(res.data))
+    adminApi.getUsers()
+      .then(setUsers)
       .catch(() => toast.error("Failed to load users"))
       .finally(() => setIsLoading(false));
   };
@@ -38,7 +37,7 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (username: string, role: string) => {
     try {
-      await apiClient.put(`/admin/users/${username}/role`, { role });
+      await adminApi.updateUserRole(username, role);
       toast.success(`User ${username} updated to ${role}`);
       loadUsers();
     } catch {

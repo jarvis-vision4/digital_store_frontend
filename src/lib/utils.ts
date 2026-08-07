@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -33,6 +34,15 @@ const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/ap
  * full URL pointing at the API server. Returns absolute URLs and emoji/text
  * unchanged.
  */
+export function errorMessage(err: unknown): string {
+  if (err instanceof AxiosError && err.response?.data?.message) {
+    const m = err.response.data.message;
+    return Array.isArray(m) ? m[0] : m;
+  }
+  if (err instanceof Error) return err.message;
+  return "Something went wrong";
+}
+
 export function resolveImageUrl(path?: string | null): string {
   if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,9 @@ import {
 import { settingsApi } from "@/lib/api";
 import type { PromotionalBanner } from "@/types";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { resolveImageUrl } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<PromotionalBanner[]>([]);
@@ -99,43 +100,6 @@ export default function AdminBannersPage() {
   );
 }
 
-function BannerImageField({ value, onChange }: { value: string | File | null; onChange: (f: File | null) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const preview = value instanceof File ? URL.createObjectURL(value) : resolveImageUrl(value);
-
-  const handleFile = (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    onChange(file);
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <Upload className="h-4 w-4" />
-          Upload Image
-        </button>
-        {preview && <img src={preview} alt="" className="h-10 w-10 rounded-md object-cover" />}
-      </div>
-    </div>
-  );
-}
-
 function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -191,7 +155,7 @@ function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="space-y-2">
             <Label>Image</Label>
-            <BannerImageField value={image} onChange={setImage} />
+            <ImageUpload value={image} onChange={setImage} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="bannerDesc">Description</Label>
@@ -267,12 +231,12 @@ function EditBannerDialog({ banner, onSuccess }: { banner: PromotionalBanner; on
         <DialogHeader><DialogTitle>Edit Banner</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="etalBannerTitle">Title</Label>
+            <Label htmlFor="etBannerTitle">Title</Label>
             <Input id="etBannerTitle" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           </div>
           <div className="space-y-2">
             <Label>Image</Label>
-            <BannerImageField value={image ?? banner.imageUrl} onChange={setImage} />
+            <ImageUpload value={image ?? banner.imageUrl} onChange={setImage} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="etBannerDesc">Description</Label>

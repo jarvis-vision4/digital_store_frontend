@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { apiClient } from "@/lib/api-client";
+import { settingsApi } from "@/lib/api";
 import { toast } from "sonner";
-import { Save, Copy, Check } from "lucide-react";
+import { Save } from "lucide-react";
 import Image from "next/image";
+import { CopyButton } from "@/components/copy-button";
 
 interface PaymentSettings {
   accountName: string;
@@ -28,25 +29,6 @@ const paymentMethods = [
   { key: "uabPayNumber" as const, label: "UAB Pay", image: "/photos/uab.png" },
 ];
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast.success("Copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy");
-    }
-  };
-  return (
-    <Button variant="ghost" size="icon" onClick={handleCopy}>
-      {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-    </Button>
-  );
-}
-
 export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [payment, setPayment] = useState<PaymentSettings>({
@@ -61,14 +43,10 @@ export default function AdminSettingsPage() {
   const [exchangeRate, setExchangeRate] = useState("");
 
   useEffect(() => {
-    apiClient
-      .get("/admin/settings")
-      .then((res) => {
-        const settings = res.data as Record<string, string>;
+    settingsApi.getAdminSettings()
+      .then((settings) => {
         if (settings.payment_settings) {
-          try {
-            setPayment(JSON.parse(settings.payment_settings));
-          } catch {}
+          try { setPayment(JSON.parse(settings.payment_settings)); } catch { /* ignore */ }
         }
         if (settings.global_notice) setNotice(settings.global_notice);
         if (settings.exchange_rate_thai_baht) setExchangeRate(settings.exchange_rate_thai_baht);
@@ -79,7 +57,7 @@ export default function AdminSettingsPage() {
 
   const savePayment = async () => {
     try {
-      await apiClient.put("/admin/settings/payment", payment);
+      await settingsApi.updatePaymentSettings(payment as unknown as Record<string, string>);
       toast.success("Payment settings updated");
     } catch {
       toast.error("Failed to update payment settings");
@@ -88,7 +66,7 @@ export default function AdminSettingsPage() {
 
   const saveNotice = async () => {
     try {
-      await apiClient.put("/admin/settings/notice", { globalNotice: notice });
+      await settingsApi.updateNotice(notice);
       toast.success("Notice updated");
     } catch {
       toast.error("Failed to update notice");
@@ -97,7 +75,7 @@ export default function AdminSettingsPage() {
 
   const saveSecurity = async () => {
     try {
-      await apiClient.put("/admin/settings/security", { exchangeRateThaiBaht: exchangeRate });
+      await settingsApi.updateSecuritySettings(exchangeRate);
       toast.success("Security settings updated");
     } catch {
       toast.error("Failed to update security settings");

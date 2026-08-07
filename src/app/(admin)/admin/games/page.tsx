@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,10 +25,10 @@ import {
 import { gamesApi } from "@/lib/api";
 import type { Game, GamePackage, GameCategory } from "@/types";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Package, X, Upload, Image as ImageIcon } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
-import { AxiosError } from "axios";
+import { Plus, Pencil, Trash2, Package, X } from "lucide-react";
+import { errorMessage } from "@/lib/utils";
 import { GameImage } from "@/components/game-image";
+import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminGamesPage() {
   const [games, setGames] = useState<Game[]>([]);
@@ -138,16 +138,8 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
       toast.success("Game created");
       setOpen(false);
       onSuccess();
-    } catch (err: unknown) {
-      if (err instanceof AxiosError && err.response?.data?.message) {
-        toast.error(Array.isArray(err.response.data.message)
-          ? err.response.data.message[0]
-          : err.response.data.message);
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to create game");
-      }
+    } catch (err) {
+      toast.error(errorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -184,7 +176,11 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="space-y-2">
             <Label>Emoji Icon / Image</Label>
-            <ImageUpload value={form.image} onChange={(url) => setForm({ ...form, image: url })} />
+            <ImageUpload value={form.image} onChange={(file) => {
+              if (file) {
+                gamesApi.uploadGameImage(file).then((url) => setForm({ ...form, image: url })).catch(() => {});
+              }
+            }} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="desc">Description</Label>
@@ -272,7 +268,11 @@ function EditGameDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
           </div>
           <div className="space-y-2">
             <Label>Emoji Icon / Image</Label>
-            <ImageUpload value={form.image} onChange={(url) => setForm({ ...form, image: url })} />
+            <ImageUpload value={form.image} onChange={(file) => {
+              if (file) {
+                gamesApi.uploadGameImage(file).then((url) => setForm({ ...form, image: url })).catch(() => {});
+              }
+            }} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="editDesc">Description</Label>
@@ -309,7 +309,7 @@ function PackagesDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
   const handleDeletePackage = async (pkgId: number) => {
     if (!confirm("Delete this package?")) return;
     try {
-      await apiClient.delete(`/admin/games/${game.id}/packages/${pkgId}`);
+      await gamesApi.deletePackageAdmin(game.id, pkgId);
       toast.success("Package deleted");
       loadPackages();
       onSuccess();
@@ -455,10 +455,10 @@ function EditPackageDialog({ pkg, onSuccess }: { pkg: GamePackage; onSuccess: ()
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await apiClient.put(`/admin/packages/${pkg.id}`, {
+      await gamesApi.updatePackageAdmin(pkg.id, {
         packageName: form.packageName,
         priceMmk: Number(form.priceMmk),
-        originalPrice: form.originalPrice ? Number(form.originalPrice) : null,
+        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
         stockQuantity: Number(form.stockQuantity),
         isActive: form.isActive,
       });
@@ -510,58 +510,5 @@ function EditPackageDialog({ pkg, onSuccess }: { pkg: GamePackage; onSuccess: ()
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
-  const [isUploading, setIsUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleFile = async (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    setIsUploading(true);
-    try {
-      const url = await gamesApi.uploadGameImage(file);
-      onChange(url);
-      toast.success("Image uploaded");
-    } catch (e: unknown) {
-      if (e instanceof AxiosError && e.response?.data?.message) {
-        toast.error(e.response.data.message);
-      } else if (e instanceof Error) {
-        toast.error(e.message);
-      } else {
-        toast.error("Failed to upload image");
-      }
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={isUploading}
-          className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
-        >
-          {isUploading ? <ImageIcon className="h-4 w-4 animate-pulse" /> : <Upload className="h-4 w-4" />}
-          {isUploading ? "Uploading..." : "Upload Image"}
-        </button>
-        {value && <GameImage value={value} className="h-10 w-10 rounded-md" />}
-      </div>
-    </div>
   );
 }

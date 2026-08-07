@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { settingsApi } from "@/lib/api";
-import { formatMmk } from "@/lib/utils";
+import { formatMmk, errorMessage } from "@/lib/utils";
 import { Users, ShoppingCart, Wallet, Banknote } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
@@ -17,7 +18,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     settingsApi.getAdminStats()
       .then(setStats)
-      .catch(console.error);
+      .catch((err) => toast.error(errorMessage(err)));
   }, []);
 
   const cards = [

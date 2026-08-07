@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { gamesApi, ordersApi, walletApi, authApi } from "@/lib/api";
-import { formatMmk } from "@/lib/utils";
+import { formatMmk, errorMessage } from "@/lib/utils";
 import type { Game, Order, User } from "@/types";
 import { Gamepad2, ShoppingCart, Wallet, Clock } from "lucide-react";
 import { GameCard } from "@/components/game-card";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
   const { user: contextUser } = useAuth();
@@ -33,7 +34,7 @@ export default function DashboardPage() {
         setBalance(Number(balanceData.balance));
         setProfile(profileData);
       })
-      .catch(console.error)
+      .catch((err) => toast.error(errorMessage(err)))
       .finally(() => setIsLoading(false));
   }, []);
 

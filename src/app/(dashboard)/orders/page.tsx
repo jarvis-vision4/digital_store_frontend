@@ -11,20 +11,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ordersApi } from "@/lib/api";
 import { formatMmk, formatDate } from "@/lib/utils";
+import { statusVariant } from "@/lib/constants";
 import type { Order, DigitalOrder } from "@/types";
 import { toast } from "sonner";
 import { Star, CheckCircle2, Package } from "lucide-react";
 
 type OrderItem = { kind: "game" } & Order | { kind: "digital" } & DigitalOrder;
-
-const statusVariant = (s: string) => {
-  switch (s.toLowerCase()) {
-    case "success": return "success" as const;
-    case "pending": return "warning" as const;
-    case "cancelled": return "destructive" as const;
-    default: return "secondary" as const;
-  }
-};
 
 function StarRating({ value, onChange, readonly }: { value: number; onChange?: (v: number) => void; readonly?: boolean }) {
   return (

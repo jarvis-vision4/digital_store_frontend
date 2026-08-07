@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Wallet, Gamepad2, Menu } from "lucide-react";
 import { formatMmk } from "@/lib/utils";
-import { apiClient } from "@/lib/api-client";
+import { walletApi } from "@/lib/api";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -27,8 +27,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    apiClient.get("/wallet/balance").then((res) => {
-      setBalance(Number((res.data as { balance: number }).balance));
+    walletApi.getWalletBalance().then((data) => {
+      setBalance(Number(data.balance));
     }).catch(() => {});
   }, [isAuthenticated]);
 

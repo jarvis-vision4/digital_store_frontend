@@ -1,5 +1,5 @@
 import { apiClient } from "../api-client";
-import type { PromotionalBanner, SystemSetting, AuditLog } from "@/types";
+import type { PromotionalBanner, AuditLog } from "@/types";
 
 export async function getActiveBanners(): Promise<PromotionalBanner[]> {
   const { data } = await apiClient.get<PromotionalBanner[]>("/banners");
@@ -20,9 +20,21 @@ export async function getSupportContacts(): Promise<{
   return data;
 }
 
-export async function getAdminSettings(): Promise<SystemSetting[]> {
-  const { data } = await apiClient.get<SystemSetting[]>("/admin/settings");
+export async function getAdminSettings(): Promise<Record<string, string>> {
+  const { data } = await apiClient.get<Record<string, string>>("/admin/settings");
   return data;
+}
+
+export async function updatePaymentSettings(payment: Record<string, string>): Promise<void> {
+  await apiClient.put("/admin/settings/payment", payment);
+}
+
+export async function updateNotice(notice: string): Promise<void> {
+  await apiClient.put("/admin/settings/notice", { globalNotice: notice });
+}
+
+export async function updateSecuritySettings(exchangeRate: string): Promise<void> {
+  await apiClient.put("/admin/settings/security", { exchangeRateThaiBaht: exchangeRate });
 }
 
 export async function getAdminStats(): Promise<{

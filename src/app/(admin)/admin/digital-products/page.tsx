@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { gamesApi } from "@/lib/api";
 import type { DigitalProduct } from "@/types";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload, Image as ImageIcon } from "lucide-react";
-import { formatMmk, resolveImageUrl } from "@/lib/utils";
-import { AxiosError } from "axios";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { formatMmk, errorMessage, resolveImageUrl } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminDigitalProductsPage() {
   const [products, setProducts] = useState<DigitalProduct[]>([]);
@@ -99,56 +99,6 @@ export default function AdminDigitalProductsPage() {
   );
 }
 
-function errorMessage(err: unknown): string {
-  if (err instanceof AxiosError && err.response?.data?.message) {
-    const m = err.response.data.message;
-    return Array.isArray(m) ? m[0] : m;
-  }
-  if (err instanceof Error) return err.message;
-  return "Something went wrong";
-}
-
-function ProductImageField({ value, onChange }: { value: string | File | null; onChange: (f: File | null) => void }) {
-  const [isUploading, setIsUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const preview = value instanceof File ? URL.createObjectURL(value) : resolveImageUrl(value);
-
-  const handleFile = (file: File | undefined) => {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    onChange(file);
-    setIsUploading(false);
-  };
-
-  return (
-    <div className="space-y-2">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFile(e.target.files?.[0])}
-      />
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={isUploading}
-          className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
-        >
-          {isUploading ? <ImageIcon className="h-4 w-4 animate-pulse" /> : <Upload className="h-4 w-4" />}
-          {isUploading ? "Uploading..." : "Upload Image"}
-        </button>
-        {preview && <img src={preview} alt="" className="h-10 w-10 rounded-md object-cover" />}
-      </div>
-    </div>
-  );
-}
-
 function AddProductDialog({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", category: "", description: "", priceMmk: "" });
@@ -208,7 +158,7 @@ function AddProductDialog({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="space-y-2">
             <Label>Image (optional)</Label>
-            <ProductImageField value={image} onChange={setImage} />
+            <ImageUpload value={image} onChange={setImage} />
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full">{isSubmitting ? "Creating..." : "Create"}</Button>
         </form>
@@ -290,7 +240,7 @@ function EditProductDialog({ product, onSuccess }: { product: DigitalProduct; on
           </label>
           <div className="space-y-2">
             <Label>Image</Label>
-            <ProductImageField value={image ?? product.image} onChange={setImage} />
+            <ImageUpload value={image ?? product.image} onChange={setImage} />
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full">{isSubmitting ? "Saving..." : "Save"}</Button>
         </form>

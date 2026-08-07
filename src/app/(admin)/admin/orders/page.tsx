@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ordersApi } from "@/lib/api";
 import { formatMmk, formatDate } from "@/lib/utils";
+import { statusVariant } from "@/lib/constants";
 import type { Order } from "@/types";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Trash2 } from "lucide-react";
@@ -59,14 +60,6 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case "Success": return "success" as const;
-      case "Pending": return "warning" as const;
-      case "Cancelled": return "destructive" as const;
-      default: return "secondary" as const;
-    }
-  };
 
   return (
     <div className="space-y-6">
