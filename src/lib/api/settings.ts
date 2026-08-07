@@ -48,24 +48,43 @@ export async function getAdminBanners(): Promise<PromotionalBanner[]> {
 export async function createBannerAdmin(dto: {
   id: string;
   title: string;
-  imageUrl: string;
   description?: string;
   badge?: string;
-}): Promise<void> {
-  await apiClient.post("/admin/banners", dto);
+}, image?: File): Promise<void> {
+  const fd = new FormData();
+  fd.append("id", dto.id);
+  fd.append("title", dto.title);
+  if (dto.description) fd.append("description", dto.description);
+  if (dto.badge) fd.append("badge", dto.badge);
+  if (image) fd.append("image", image);
+  await apiClient.post("/admin/banners", fd, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 
 export async function updateBannerAdmin(
   id: string,
   dto: Partial<{
     title: string;
-    imageUrl: string;
     description: string;
     badge: string;
     isActive: boolean;
   }>,
+  image?: File,
 ): Promise<void> {
-  await apiClient.put(`/admin/banners/${id}`, dto);
+  const fd = new FormData();
+  if (dto.title) fd.append("title", dto.title);
+  if (dto.description) fd.append("description", dto.description);
+  if (dto.badge) fd.append("badge", dto.badge);
+  if (dto.isActive !== undefined) fd.append("isActive", String(dto.isActive));
+  if (image) fd.append("image", image);
+  await apiClient.put(`/admin/banners/${id}`, fd, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+}
+
+export async function deleteBannerAdmin(id: string): Promise<void> {
+  await apiClient.delete(`/admin/banners/${id}`);
 }
 
 export async function getPaymentSettingsPublic(): Promise<Record<string, string>> {

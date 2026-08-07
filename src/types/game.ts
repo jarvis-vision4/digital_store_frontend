@@ -39,8 +39,11 @@ export interface DigitalProduct {
   name: string;
   category: string;
   description: string | null;
+  image: string | null;
   priceMmk: number;
-  stock: number;
+  isAvailable: boolean;
+  stockAvailable: boolean;
+  inStock: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -50,8 +53,16 @@ export interface CreateDigitalProductDto {
   name: string;
   category?: string;
   description?: string;
+  image?: string;
   priceMmk: number;
-  stock?: number;
+  isAvailable?: boolean;
+}
+
+export interface CreateGamePackageDto {
+  packageName: string;
+  priceMmk: number;
+  stockQuantity?: number;
+  originalPrice?: number;
 }
 
 export interface CreateGameDto {
@@ -64,6 +75,7 @@ export interface CreateGameDto {
   minAmount?: string;
   popular?: boolean;
   sortOrder?: number;
+  packages: CreateGamePackageDto[];
 }
 
 export interface CreatePackageDto {

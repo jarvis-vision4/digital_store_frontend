@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/header";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +29,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-20 md:pb-6">{children}</main>
+      <MobileNav />
     </div>
   );
 }

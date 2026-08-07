@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useState, useCallback } from "react";
+import { signOut as nextAuthSignOut } from "next-auth/react";
 import { AuthContext, type AuthContextType } from "@/hooks/use-auth";
 import * as authApi from "@/lib/api/auth";
 import type { User, LoginDto, RegisterDto } from "@/types";
@@ -49,7 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     setUser(null);
-    redirect("/login");
+    nextAuthSignOut({ callbackUrl: "/login" }).catch(() => {
+      redirect("/login");
+    });
   }, [redirect]);
 
   const value: AuthContextType = {

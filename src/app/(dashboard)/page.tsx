@@ -10,6 +10,7 @@ import { gamesApi, ordersApi, walletApi, authApi } from "@/lib/api";
 import { formatMmk } from "@/lib/utils";
 import type { Game, Order, User } from "@/types";
 import { Gamepad2, ShoppingCart, Wallet, Clock } from "lucide-react";
+import { GameCard } from "@/components/game-card";
 
 export default function DashboardPage() {
   const { user: contextUser } = useAuth();
@@ -82,14 +83,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {games.slice(0, 6).map((game) => (
-              <Link key={game.id} href={`/games/${game.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                    <span className="text-3xl">{game.image}</span>
-                    <p className="font-medium text-sm">{game.name}</p>
-                  </CardContent>
-                </Card>
-              </Link>
+              <GameCard key={game.id} game={game} />
             ))}
           </div>
         )}
