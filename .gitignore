@@ -21,3 +21,5 @@ yarn-error.log*
 # IDE
 .vscode/
 .idea/
+# TypeScript incremental cache
+tsconfig.tsbuildinfo
