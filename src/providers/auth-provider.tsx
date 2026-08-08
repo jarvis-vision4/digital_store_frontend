@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const profile = await authApi.getProfile();
     localStorage.setItem("user", JSON.stringify(profile));
     setUser(profile);
-    redirect(profile.role === "ADMIN" ? "/admin" : "/");
+    redirect(profile.role === "ADMIN" ? "/admin" : "/dashboard");
   }, [redirect]);
 
   const register = useCallback(async (dto: RegisterDto) => {
