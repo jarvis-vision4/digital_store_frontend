@@ -8,55 +8,37 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
-import { authApi } from "@/lib/api";
+import { useProfile, useReferralInfo, useChangePassword } from "@/hooks/queries/use-profile";
 import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import { User, Shield, Copy, Check, Users, Gift, RefreshCw } from "lucide-react";
 import { copyToClipboard } from "@/components/copy-button";
-import type { ReferralInfo } from "@/types";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
+  const { data: profile, refetch } = useProfile();
+  const { data: referralInfo, isLoading: isLoadingReferrals, refetch: refetchReferrals } = useReferralInfo();
+  const passwordMutation = useChangePassword();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
-  const [isLoadingReferrals, setIsLoadingReferrals] = useState(true);
 
   useEffect(() => {
-    authApi.getProfile()
-      .then((profile) => {
-        setUser(profile);
-        localStorage.setItem("user", JSON.stringify(profile));
-      })
-      .catch(() => {});
-  }, [setUser]);
-
-  const loadReferralInfo = () => {
-    setIsLoadingReferrals(true);
-    authApi.getReferralInfo()
-      .then((data) => setReferralInfo(data))
-      .catch(() => {})
-      .finally(() => setIsLoadingReferrals(false));
-  };
-
-  useEffect(() => {
-    loadReferralInfo();
-  }, []);
+    if (profile) {
+      setUser(profile);
+      localStorage.setItem("user", JSON.stringify(profile));
+    }
+  }, [profile, setUser]);
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsChangingPassword(true);
     try {
-      await authApi.changePassword({ currentPassword, newPassword });
+      await passwordMutation.mutateAsync({ currentPassword, newPassword });
       toast.success("Password changed successfully!");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsChangingPassword(false);
     }
   };
 
@@ -119,7 +101,7 @@ export default function ProfilePage() {
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" /> Referral Program
             </CardTitle>
-            <Button variant="ghost" size="icon" onClick={loadReferralInfo}>
+            <Button variant="ghost" size="icon" onClick={() => refetchReferrals()}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
@@ -205,8 +187,8 @@ export default function ProfilePage() {
                 minLength={6}
               />
             </div>
-            <Button type="submit" disabled={isChangingPassword}>
-              {isChangingPassword ? "Updating..." : "Change Password"}
+            <Button type="submit" disabled={passwordMutation.isPending}>
+              {passwordMutation.isPending ? "Updating..." : "Change Password"}
             </Button>
           </form>
         </CardContent>

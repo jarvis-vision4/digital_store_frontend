@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,33 +12,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { adminApi } from "@/lib/api";
+import { useUsers, useUpdateUserRole } from "@/hooks/queries";
 import { formatMmk, formatDate } from "@/lib/utils";
-import type { User } from "@/types";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: users = [], isPending } = useUsers();
+  const updateRoleMutation = useUpdateUserRole();
   const [search, setSearch] = useState("");
-
-  const loadUsers = () => {
-    setIsLoading(true);
-    adminApi.getUsers()
-      .then(setUsers)
-      .catch(() => toast.error("Failed to load users"))
-      .finally(() => setIsLoading(false));
-  };
-
-  useEffect(() => { loadUsers(); }, []);
 
   const handleRoleChange = async (username: string, role: string) => {
     try {
-      await adminApi.updateUserRole(username, role);
+      await updateRoleMutation.mutateAsync({ username, role });
       toast.success(`User ${username} updated to ${role}`);
-      loadUsers();
     } catch {
       toast.error("Failed to update role");
     }
@@ -65,7 +51,7 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
         </div>

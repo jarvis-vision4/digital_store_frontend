@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { gamesApi } from "@/lib/api";
+import {
+  useGames,
+  useGame,
+  useCreateGame,
+  useUpdateGame,
+  useDeleteGame,
+  useAddPackage,
+  useUpdatePackage,
+  useDeletePackage,
+  useUploadGameImage,
+} from "@/hooks/queries";
 import type { Game, GamePackage, GameCategory } from "@/types";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Package, X } from "lucide-react";
@@ -31,28 +41,14 @@ import { GameImage } from "@/components/game-image";
 import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminGamesPage() {
-  const [games, setGames] = useState<Game[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadGames = async () => {
-    try {
-      const data = await gamesApi.getGames();
-      setGames(data);
-    } catch {
-      toast.error("Failed to load games");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadGames(); }, []);
+  const { data: games = [], isLoading } = useGames();
+  const deleteGame = useDeleteGame();
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this game? This cannot be undone.")) return;
     try {
-      await gamesApi.deleteGameAdmin(id);
+      await deleteGame.mutateAsync(id);
       toast.success("Game deleted");
-      loadGames();
     } catch {
       toast.error("Failed to delete game");
     }
@@ -62,7 +58,7 @@ export default function AdminGamesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Manage Games</h1>
-        <AddGameDialog onSuccess={loadGames} />
+        <AddGameDialog />
       </div>
 
       {isLoading ? (
@@ -85,8 +81,8 @@ export default function AdminGamesPage() {
                   <Badge variant={game.isActive ? "success" : "secondary"}>
                     {game.isActive ? "Active" : "Inactive"}
                   </Badge>
-                  <PackagesDialog game={game} onSuccess={loadGames} />
-                  <EditGameDialog game={game} onSuccess={loadGames} />
+                  <PackagesDialog game={game} />
+                  <EditGameDialog game={game} />
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(game.id)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -100,7 +96,7 @@ export default function AdminGamesPage() {
   );
 }
 
-function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
+function AddGameDialog() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     id: "",
@@ -112,13 +108,13 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
     pkgName: "",
     pkgPrice: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createGame = useCreateGame();
+  const uploadImage = useUploadGameImage();
 
   const canSubmit = form.image && form.pkgName.trim() && form.pkgPrice.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
       const payload = {
         id: form.id,
@@ -134,14 +130,11 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
           },
         ],
       };
-      await gamesApi.createGameAdmin(payload);
+      await createGame.mutateAsync(payload);
       toast.success("Game created");
       setOpen(false);
-      onSuccess();
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -176,11 +169,13 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <div className="space-y-2">
             <Label>Emoji Icon / Image</Label>
-            <ImageUpload value={form.image} onChange={(file) => {
-              if (file) {
-                gamesApi.uploadGameImage(file).then((url) => setForm({ ...form, image: url })).catch(() => {});
-              }
-            }} />
+            <ImageUpload
+              value={form.image}
+              onUpload={(file) => uploadImage.mutateAsync(file)}
+              onChange={(file) => {
+                if (file) setForm({ ...form, image: file as unknown as string });
+              }}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="desc">Description</Label>
@@ -204,8 +199,8 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
             <p className="text-xs text-muted-foreground mt-1">You can add more packages later.</p>
           </div>
 
-          <Button type="submit" disabled={isSubmitting || !canSubmit} className="w-full">
-            {isSubmitting ? "Creating..." : "Create Game"}
+          <Button type="submit" disabled={createGame.isPending || !canSubmit} className="w-full">
+            {createGame.isPending ? "Creating..." : "Create Game"}
           </Button>
         </form>
       </DialogContent>
@@ -213,7 +208,7 @@ function AddGameDialog({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-function EditGameDialog({ game, onSuccess }: { game: Game; onSuccess: () => void }) {
+function EditGameDialog({ game }: { game: Game }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     name: game.name,
@@ -222,20 +217,17 @@ function EditGameDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
     description: game.description || "",
     minAmount: game.minAmount,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateGame = useUpdateGame();
+  const uploadImage = useUploadGameImage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await gamesApi.updateGameAdmin(game.id, form);
+      await updateGame.mutateAsync({ id: game.id, dto: form });
       toast.success("Game updated");
       setOpen(false);
-      onSuccess();
     } catch {
       toast.error("Failed to update game");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -268,18 +260,20 @@ function EditGameDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
           </div>
           <div className="space-y-2">
             <Label>Emoji Icon / Image</Label>
-            <ImageUpload value={form.image} onChange={(file) => {
-              if (file) {
-                gamesApi.uploadGameImage(file).then((url) => setForm({ ...form, image: url })).catch(() => {});
-              }
-            }} />
+            <ImageUpload
+              value={form.image}
+              onUpload={(file) => uploadImage.mutateAsync(file)}
+              onChange={(file) => {
+                if (file) setForm({ ...form, image: file as unknown as string });
+              }}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="editDesc">Description</Label>
             <Input id="editDesc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
-          <Button type="submit" disabled={isSubmitting || !form.image} className="w-full">
-            {isSubmitting ? "Saving..." : "Save Changes"}
+          <Button type="submit" disabled={updateGame.isPending || !form.image} className="w-full">
+            {updateGame.isPending ? "Saving..." : "Save Changes"}
           </Button>
         </form>
       </DialogContent>
@@ -287,32 +281,18 @@ function EditGameDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
   );
 }
 
-function PackagesDialog({ game, onSuccess }: { game: Game; onSuccess: () => void }) {
+function PackagesDialog({ game }: { game: Game }) {
   const [open, setOpen] = useState(false);
-  const [packages, setPackages] = useState<GamePackage[]>(game.packages);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const loadPackages = async () => {
-    setIsLoading(true);
-    try {
-      const g = await gamesApi.getGame(game.id);
-      setPackages(g.packages);
-    } catch {
-      toast.error("Failed to load packages");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { if (open) loadPackages(); }, [open, game.id]);
+  const { data: gameDetail, isLoading, refetch } = useGame(game.id);
+  const packages = gameDetail?.packages ?? game.packages;
+  const deletePackage = useDeletePackage();
 
   const handleDeletePackage = async (pkgId: number) => {
     if (!confirm("Delete this package?")) return;
     try {
-      await gamesApi.deletePackageAdmin(game.id, pkgId);
+      await deletePackage.mutateAsync({ gameId: game.id, pkgId });
       toast.success("Package deleted");
-      loadPackages();
-      onSuccess();
+      await refetch();
     } catch {
       toast.error("Failed to delete package");
     }
@@ -331,7 +311,7 @@ function PackagesDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
         </DialogHeader>
 
         <div className="flex justify-end">
-          <AddPackageDialog gameId={game.id} onSuccess={() => { loadPackages(); onSuccess(); }} />
+          <AddPackageDialog gameId={game.id} onSuccess={refetch} />
         </div>
 
         {isLoading ? (
@@ -359,7 +339,7 @@ function PackagesDialog({ game, onSuccess }: { game: Game; onSuccess: () => void
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <EditPackageDialog pkg={pkg} onSuccess={() => { loadPackages(); onSuccess(); }} />
+                    <EditPackageDialog pkg={pkg} onSuccess={refetch} />
                     <Button variant="ghost" size="icon" onClick={() => handleDeletePackage(pkg.id)}>
                       <X className="h-4 w-4 text-destructive" />
                     </Button>
@@ -382,17 +362,19 @@ function AddPackageDialog({ gameId, onSuccess }: { gameId: string; onSuccess: ()
     originalPrice: "",
     stockQuantity: "999",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const addPackage = useAddPackage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await gamesApi.addPackageAdmin(gameId, {
-        packageName: form.packageName,
-        priceMmk: Number(form.priceMmk),
-        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
-        stockQuantity: Number(form.stockQuantity),
+      await addPackage.mutateAsync({
+        gameId,
+        dto: {
+          packageName: form.packageName,
+          priceMmk: Number(form.priceMmk),
+          originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+          stockQuantity: Number(form.stockQuantity),
+        },
       });
       toast.success("Package added");
       setOpen(false);
@@ -400,8 +382,6 @@ function AddPackageDialog({ gameId, onSuccess }: { gameId: string; onSuccess: ()
       onSuccess();
     } catch {
       toast.error("Failed to add package");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -431,8 +411,8 @@ function AddPackageDialog({ gameId, onSuccess }: { gameId: string; onSuccess: ()
             <Label htmlFor="stockQty">Stock Quantity</Label>
             <Input id="stockQty" type="number" value={form.stockQuantity} onChange={(e) => setForm({ ...form, stockQuantity: e.target.value })} />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Adding..." : "Add Package"}
+          <Button type="submit" disabled={addPackage.isPending} className="w-full">
+            {addPackage.isPending ? "Adding..." : "Add Package"}
           </Button>
         </form>
       </DialogContent>
@@ -449,26 +429,26 @@ function EditPackageDialog({ pkg, onSuccess }: { pkg: GamePackage; onSuccess: ()
     stockQuantity: String(pkg.stockQuantity),
     isActive: pkg.isActive,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const updatePackage = useUpdatePackage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await gamesApi.updatePackageAdmin(pkg.id, {
-        packageName: form.packageName,
-        priceMmk: Number(form.priceMmk),
-        originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
-        stockQuantity: Number(form.stockQuantity),
-        isActive: form.isActive,
+      await updatePackage.mutateAsync({
+        pkgId: pkg.id,
+        dto: {
+          packageName: form.packageName,
+          priceMmk: Number(form.priceMmk),
+          originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+          stockQuantity: Number(form.stockQuantity),
+          isActive: form.isActive,
+        },
       });
       toast.success("Package updated");
       setOpen(false);
       onSuccess();
     } catch {
       toast.error("Failed to update package");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -504,8 +484,8 @@ function EditPackageDialog({ pkg, onSuccess }: { pkg: GamePackage; onSuccess: ()
             <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
             <span className="text-sm">Active</span>
           </label>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Saving..." : "Save Changes"}
+          <Button type="submit" disabled={updatePackage.isPending} className="w-full">
+            {updatePackage.isPending ? "Saving..." : "Save Changes"}
           </Button>
         </form>
       </DialogContent>

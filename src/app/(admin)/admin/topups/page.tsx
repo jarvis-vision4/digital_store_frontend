@@ -1,40 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { walletApi } from "@/lib/api";
+import { useAdminTopups, useApproveDeposit, useRejectDeposit } from "@/hooks/queries";
 import { formatMmk, formatDate } from "@/lib/utils";
 import type { WalletTransaction } from "@/types";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Gift } from "lucide-react";
 
 export default function AdminTopupsPage() {
-  const [topups, setTopups] = useState<WalletTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadTopups = async () => {
-    try {
-      const data = await walletApi.getAdminTopups();
-      setTopups(data);
-    } catch {
-      toast.error("Failed to load topups");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadTopups(); }, []);
+  const { data: topups = [], isLoading } = useAdminTopups();
+  const approveMutation = useApproveDeposit();
+  const rejectMutation = useRejectDeposit();
 
   const handleApprove = async (id: string, rewardedAmount?: number) => {
     try {
-      await walletApi.approveDepositAdmin(id, rewardedAmount);
+      await approveMutation.mutateAsync({ transactionId: id, rewardedAmount });
       toast.success(rewardedAmount ? `Deposit approved with ${formatMmk(rewardedAmount)} reward` : "Deposit approved");
-      loadTopups();
     } catch {
       toast.error("Failed to approve deposit");
     }
@@ -42,9 +28,8 @@ export default function AdminTopupsPage() {
 
   const handleReject = async (id: string) => {
     try {
-      await walletApi.rejectDepositAdmin(id);
+      await rejectMutation.mutateAsync({ transactionId: id });
       toast.success("Deposit rejected");
-      loadTopups();
     } catch {
       toast.error("Failed to reject deposit");
     }

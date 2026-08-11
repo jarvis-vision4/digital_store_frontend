@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { walletApi, authApi, settingsApi } from "@/lib/api";
+import { useWalletBalance, useWalletTransactions, useProfile, usePaymentSettingsPublic, useSubmitDeposit, useRedeemCoupon } from "@/hooks/queries";
 import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
 import { statusVariant } from "@/lib/constants";
 import { CopyButton, copyToClipboard } from "@/components/copy-button";
-import type { WalletTransaction } from "@/types";
 import { toast } from "sonner";
 import { Wallet, RefreshCw, Check, Copy } from "lucide-react";
 import Image from "next/image";
@@ -26,43 +24,26 @@ const paymentMethods = [
 ];
 
 export default function WalletPage() {
-  const [balance, setBalance] = useState<number>(0);
-  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: balanceData, isLoading: isLoadingBalance, refetch: refetchBalance } = useWalletBalance();
+  const { data: transactions = [], isLoading: isLoadingTx, refetch: refetchTx } = useWalletTransactions();
+  const { data: profile } = useProfile();
+  const { data: paymentInfo = {} } = usePaymentSettingsPublic();
+  const depositMutation = useSubmitDeposit();
+  const redeemMutation = useRedeemCoupon();
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("KBZ Pay");
-  const [isDepositing, setIsDepositing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [couponCode, setCouponCode] = useState("");
-  const [isRedeeming, setIsRedeeming] = useState(false);
-  const [referralCode, setReferralCode] = useState("");
-  const [paymentInfo, setPaymentInfo] = useState<Record<string, string>>({});
 
-  const loadData = async () => {
-    try {
-      const [balanceData, txData, profile] = await Promise.all([
-        walletApi.getWalletBalance(),
-        walletApi.getWalletTransactions(),
-        authApi.getProfile(),
-      ]);
-      setBalance(Number(balanceData.balance));
-      setTransactions(txData);
-      setReferralCode(profile.referralCode);
+  const isLoading = isLoadingBalance || isLoadingTx;
+  const balance = Number(balanceData?.balance ?? 0);
+  const referralCode = profile?.referralCode ?? "";
 
-      const payInfo = await settingsApi.getPaymentSettingsPublic()
-        .catch(() => ({} as Record<string, string>));
-      setPaymentInfo(payInfo);
-    } catch {
-      toast.error("Failed to load wallet data");
-    } finally {
-      setIsLoading(false);
-    }
+  const loadData = () => {
+    refetchBalance();
+    refetchTx();
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const currentMethod = paymentMethods.find((m) => m.key === paymentMethod);
   const accountNumber = currentMethod ? paymentInfo[currentMethod.numberKey] : "";
@@ -70,9 +51,8 @@ export default function WalletPage() {
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsDepositing(true);
     try {
-      await walletApi.submitDeposit({
+      await depositMutation.mutateAsync({
         amount: Number(amount),
         paymentMethod,
         phone,
@@ -82,22 +62,17 @@ export default function WalletPage() {
       setPhone("");
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsDepositing(false);
     }
   };
 
   const handleRedeem = async () => {
     if (!couponCode) return;
-    setIsRedeeming(true);
     try {
-      await walletApi.redeemCoupon({ code: couponCode });
+      await redeemMutation.mutateAsync({ code: couponCode });
       toast.success("Coupon redeemed successfully!");
       setCouponCode("");
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsRedeeming(false);
     }
   };
 
@@ -233,8 +208,8 @@ export default function WalletPage() {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isDepositing}>
-                  {isDepositing ? "Submitting..." : "Submit Deposit"}
+                <Button type="submit" disabled={depositMutation.isPending}>
+                  {depositMutation.isPending ? "Submitting..." : "Submit Deposit"}
                 </Button>
               </form>
             </CardContent>
@@ -254,8 +229,8 @@ export default function WalletPage() {
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
                 />
-                <Button onClick={handleRedeem} disabled={isRedeeming || !couponCode}>
-                  {isRedeeming ? "..." : "Redeem"}
+                <Button onClick={handleRedeem} disabled={redeemMutation.isPending || !couponCode}>
+                  {redeemMutation.isPending ? "..." : "Redeem"}
                 </Button>
               </div>
             </CardContent>

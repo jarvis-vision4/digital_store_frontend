@@ -1,45 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
-import { gamesApi, ordersApi, walletApi, authApi } from "@/lib/api";
-import { formatMmk, errorMessage } from "@/lib/utils";
-import type { Game, Order, User } from "@/types";
-import { Gamepad2, ShoppingCart, Wallet, Clock } from "lucide-react";
+import { useGames, useUserOrders, useWalletBalance } from "@/hooks/queries";
+import { useProfile } from "@/hooks/queries/use-profile";
+import { formatMmk } from "@/lib/utils";
+import { ShoppingCart, Wallet, Clock } from "lucide-react";
 import { GameCard } from "@/components/game-card";
-import { toast } from "sonner";
 
 export default function DashboardPage() {
   const { user: contextUser } = useAuth();
-  const [games, setGames] = useState<Game[]>([]);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [profile, setProfile] = useState<User | null>(null);
-  const [balance, setBalance] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      gamesApi.getGames(),
-      ordersApi.getUserOrders(),
-      walletApi.getWalletBalance(),
-      authApi.getProfile(),
-    ])
-      .then(([gamesData, ordersData, balanceData, profileData]) => {
-        setGames(gamesData.filter((g) => g.popular));
-        setRecentOrders(ordersData.slice(0, 5));
-        setBalance(Number(balanceData.balance));
-        setProfile(profileData);
-      })
-      .catch((err) => toast.error(errorMessage(err)))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { data: games, isLoading: isLoadingGames } = useGames();
+  const { data: recentOrders = [], isLoading: isLoadingOrders } = useUserOrders();
+  const { data: balanceData } = useWalletBalance();
+  const { data: profile } = useProfile();
 
   const stats = [
-    { label: "Wallet Balance", value: formatMmk(balance), icon: Wallet, color: "text-blue-600" },
+    { label: "Wallet Balance", value: formatMmk(balanceData?.balance ?? 0), icon: Wallet, color: "text-blue-600" },
     { label: "Total Orders", value: recentOrders.length.toString(), icon: ShoppingCart, color: "text-green-600" },
     { label: "VIP Level", value: profile?.vipName ?? contextUser?.vipName ?? "Standard Gamer", icon: Clock, color: "text-purple-600" },
   ];
@@ -75,7 +55,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-bold">Popular Games</h2>
           <Link href="/games" className="text-sm text-primary hover:underline">View All</Link>
         </div>
-        {isLoading ? (
+        {isLoadingGames ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <Card key={i}><CardContent className="p-4"><Skeleton className="h-20" /></CardContent></Card>
@@ -83,7 +63,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {games.slice(0, 6).map((game) => (
+            {games?.filter((g) => g.popular).slice(0, 6).map((game) => (
               <GameCard key={game.id} game={game} />
             ))}
           </div>
@@ -97,11 +77,15 @@ export default function DashboardPage() {
         </div>
         <Card>
           <CardContent className="p-0">
-            {recentOrders.length === 0 ? (
+            {isLoadingOrders ? (
+              <div className="p-4 space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16" />)}
+              </div>
+            ) : recentOrders.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No orders yet</p>
             ) : (
               <div className="divide-y">
-                {recentOrders.map((order) => (
+                {recentOrders.slice(0, 5).map((order) => (
                   <div key={order.id} className="flex items-center justify-between p-4">
                     <div>
                       <p className="font-medium">{order.gameName} - {order.packageName}</p>

@@ -1,39 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ordersApi } from "@/lib/api";
+import { useAdminOrders, useDeliverOrder, useCancelOrder, useDeleteOrder } from "@/hooks/queries";
 import { formatMmk, formatDate } from "@/lib/utils";
 import { statusVariant } from "@/lib/constants";
-import type { Order } from "@/types";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Trash2 } from "lucide-react";
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadOrders = async () => {
-    try {
-      const data = await ordersApi.getAdminOrders();
-      setOrders(data);
-    } catch {
-      toast.error("Failed to load orders");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadOrders(); }, []);
+  const { data: orders = [], isLoading } = useAdminOrders();
+  const deliverMutation = useDeliverOrder();
+  const cancelMutation = useCancelOrder();
+  const deleteMutation = useDeleteOrder();
 
   const handleDeliver = async (id: string) => {
     try {
-      await ordersApi.deliverOrderAdmin(id);
+      await deliverMutation.mutateAsync(id);
       toast.success("Order delivered");
-      loadOrders();
     } catch {
       toast.error("Failed to deliver order");
     }
@@ -41,9 +27,8 @@ export default function AdminOrdersPage() {
 
   const handleCancel = async (id: string) => {
     try {
-      await ordersApi.cancelOrderAdmin(id);
+      await cancelMutation.mutateAsync(id);
       toast.success("Order cancelled");
-      loadOrders();
     } catch {
       toast.error("Failed to cancel order");
     }
@@ -52,9 +37,8 @@ export default function AdminOrdersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this order permanently?")) return;
     try {
-      await ordersApi.deleteOrderAdmin(id);
+      await deleteMutation.mutateAsync(id);
       toast.success("Order deleted");
-      loadOrders();
     } catch {
       toast.error("Failed to delete order");
     }

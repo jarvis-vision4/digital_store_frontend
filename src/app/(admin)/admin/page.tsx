@@ -1,31 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { settingsApi } from "@/lib/api";
-import { formatMmk, errorMessage } from "@/lib/utils";
+import { useAdminStats } from "@/hooks/queries";
+import { formatMmk } from "@/lib/utils";
 import { Users, ShoppingCart, Wallet, Banknote } from "lucide-react";
-import { toast } from "sonner";
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalOrders: 0,
-    totalRevenue: 0,
-    pendingTopups: 0,
-  });
-
-  useEffect(() => {
-    settingsApi.getAdminStats()
-      .then(setStats)
-      .catch((err) => toast.error(errorMessage(err)));
-  }, []);
+  const { data: stats } = useAdminStats();
 
   const cards = [
-    { title: "Total Users", value: stats.totalUsers, icon: Users, color: "text-blue-600" },
-    { title: "Total Orders", value: stats.totalOrders, icon: ShoppingCart, color: "text-green-600" },
-    { title: "Total Revenue", value: formatMmk(stats.totalRevenue), icon: Wallet, color: "text-purple-600" },
-    { title: "Pending Topups", value: stats.pendingTopups, icon: Banknote, color: "text-orange-600" },
+    { title: "Total Users", value: stats?.totalUsers ?? 0, icon: Users, color: "text-blue-600" },
+    { title: "Total Orders", value: stats?.totalOrders ?? 0, icon: ShoppingCart, color: "text-green-600" },
+    { title: "Total Revenue", value: formatMmk(stats?.totalRevenue ?? 0), icon: Wallet, color: "text-purple-600" },
+    { title: "Pending Topups", value: stats?.pendingTopups ?? 0, icon: Banknote, color: "text-orange-600" },
   ];
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,37 +14,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { walletApi } from "@/lib/api";
+import { useAdminCoupons, useGenerateCoupon } from "@/hooks/queries";
 import { formatMmk } from "@/lib/utils";
-import type { Coupon } from "@/types";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
 export default function AdminCouponsPage() {
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadCoupons = async () => {
-    try {
-      const data = await walletApi.getAdminCoupons();
-      setCoupons(data);
-    } catch {
-      toast.error("Failed to load coupons");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadCoupons(); }, []);
+  const { data: coupons = [], isPending } = useAdminCoupons();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Coupons</h1>
-        <GenerateCouponDialog onSuccess={loadCoupons} />
+        <GenerateCouponDialog />
       </div>
 
-      {isLoading ? (
+      {isPending ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16" />)}
         </div>
@@ -68,7 +53,7 @@ export default function AdminCouponsPage() {
               </CardContent>
             </Card>
           ))}
-          {!isLoading && coupons.length === 0 && (
+          {!isPending && coupons.length === 0 && (
             <p className="text-center text-muted-foreground py-8">No coupons yet</p>
           )}
         </div>
@@ -77,24 +62,22 @@ export default function AdminCouponsPage() {
   );
 }
 
-function GenerateCouponDialog({ onSuccess }: { onSuccess: () => void }) {
+function GenerateCouponDialog() {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [amount, setAmount] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const generateCouponMutation = useGenerateCoupon();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await walletApi.generateCouponAdmin(code, Number(amount));
+      await generateCouponMutation.mutateAsync({ code, amount: Number(amount) });
       toast.success("Coupon generated");
       setOpen(false);
-      onSuccess();
+      setCode("");
+      setAmount("");
     } catch {
       toast.error("Failed to generate coupon");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -116,8 +99,8 @@ function GenerateCouponDialog({ onSuccess }: { onSuccess: () => void }) {
             <Label htmlFor="amount">Amount (MMK)</Label>
             <Input id="amount" type="number" placeholder="e.g. 5000" value={amount} onChange={(e) => setAmount(e.target.value)} required min={100} />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Generating..." : "Generate"}
+          <Button type="submit" disabled={generateCouponMutation.isPending} className="w-full">
+            {generateCouponMutation.isPending ? "Generating..." : "Generate"}
           </Button>
         </form>
       </DialogContent>

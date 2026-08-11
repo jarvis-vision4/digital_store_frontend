@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { gamesApi, ordersApi } from "@/lib/api";
 import { formatMmk } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useCreateOrder } from "@/hooks/queries";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
 import type { Game, GamePackage } from "@/types";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import { GameImage } from "@/components/game-image";
 export function GameDetail({ game }: { game: Game }) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const orderMutation = useCreateOrder();
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
@@ -46,7 +47,7 @@ export function GameDetail({ game }: { game: Game }) {
     }
     setIsOrdering(true);
     try {
-      await ordersApi.createOrder({
+      await orderMutation.mutateAsync({
         gameId: game.id,
         gameName: game.name,
         packageName: selectedPkg.packageName,

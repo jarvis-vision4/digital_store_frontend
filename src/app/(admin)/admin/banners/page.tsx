@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { settingsApi } from "@/lib/api";
+import { useAdminBanners, useCreateBanner, useUpdateBanner, useDeleteBanner } from "@/hooks/queries";
 import type { PromotionalBanner } from "@/types";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -22,28 +22,14 @@ import { resolveImageUrl } from "@/lib/utils";
 import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminBannersPage() {
-  const [banners, setBanners] = useState<PromotionalBanner[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadBanners = async () => {
-    try {
-      const data = await settingsApi.getAdminBanners();
-      setBanners(data);
-    } catch {
-      toast.error("Failed to load banners");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadBanners(); }, []);
+  const { data: banners = [], isLoading } = useAdminBanners();
+  const deleteBanner = useDeleteBanner();
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this banner? This cannot be undone.")) return;
     try {
-      await settingsApi.deleteBannerAdmin(id);
+      await deleteBanner.mutateAsync(id);
       toast.success("Banner deleted");
-      loadBanners();
     } catch {
       toast.error("Failed to delete banner");
     }
@@ -53,7 +39,7 @@ export default function AdminBannersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Banners</h1>
-        <AddBannerDialog onSuccess={loadBanners} />
+        <AddBannerDialog />
       </div>
 
       {isLoading ? (
@@ -84,7 +70,7 @@ export default function AdminBannersPage() {
                 )}
               </CardContent>
               <CardContent className="pt-0 flex items-center justify-end">
-                <EditBannerDialog banner={banner} onSuccess={loadBanners} />
+                <EditBannerDialog banner={banner} />
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(banner.id)}>
                   <Trash2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -100,7 +86,7 @@ export default function AdminBannersPage() {
   );
 }
 
-function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
+function AddBannerDialog() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     id: "",
@@ -109,29 +95,25 @@ function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
     badge: "",
   });
   const [image, setImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createBanner = useCreateBanner();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await settingsApi.createBannerAdmin(
-        {
+      await createBanner.mutateAsync({
+        dto: {
           ...form,
           description: form.description || undefined,
           badge: form.badge || undefined,
         },
-        image ?? undefined,
-      );
+        image: image ?? undefined,
+      });
       toast.success("Banner created");
       setOpen(false);
       setForm({ id: "", title: "", description: "", badge: "" });
       setImage(null);
-      onSuccess();
     } catch {
       toast.error("Failed to create banner");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -165,8 +147,8 @@ function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
             <Label htmlFor="bannerBadge">Badge</Label>
             <Input id="bannerBadge" value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })} />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Creating..." : "Create Banner"}
+          <Button type="submit" disabled={createBanner.isPending} className="w-full">
+            {createBanner.isPending ? "Creating..." : "Create Banner"}
           </Button>
         </form>
       </DialogContent>
@@ -174,7 +156,7 @@ function AddBannerDialog({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-function EditBannerDialog({ banner, onSuccess }: { banner: PromotionalBanner; onSuccess: () => void }) {
+function EditBannerDialog({ banner }: { banner: PromotionalBanner }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: banner.title,
@@ -183,7 +165,7 @@ function EditBannerDialog({ banner, onSuccess }: { banner: PromotionalBanner; on
     isActive: banner.isActive,
   });
   const [image, setImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateBanner = useUpdateBanner();
 
   useEffect(() => {
     if (open) {
@@ -199,26 +181,22 @@ function EditBannerDialog({ banner, onSuccess }: { banner: PromotionalBanner; on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await settingsApi.updateBannerAdmin(
-        banner.id,
-        {
+      await updateBanner.mutateAsync({
+        id: banner.id,
+        dto: {
           title: form.title,
           description: form.description || undefined,
           badge: form.badge || undefined,
           isActive: form.isActive,
         },
-        image ?? undefined,
-      );
+        image: image ?? undefined,
+      });
       toast.success("Banner updated");
       setOpen(false);
       setImage(null);
-      onSuccess();
     } catch {
       toast.error("Failed to update banner");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -255,8 +233,8 @@ function EditBannerDialog({ banner, onSuccess }: { banner: PromotionalBanner; on
             />
             Active
           </label>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Saving..." : "Save"}
+          <Button type="submit" disabled={updateBanner.isPending} className="w-full">
+            {updateBanner.isPending ? "Saving..." : "Save"}
           </Button>
         </form>
       </DialogContent>

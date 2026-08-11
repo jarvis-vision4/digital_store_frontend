@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { gamesApi } from "@/lib/api";
 import { formatMmk, resolveImageUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrderDigitalProduct } from "@/hooks/queries";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
 import type { DigitalProduct } from "@/types";
 import { toast } from "sonner";
@@ -47,13 +47,14 @@ export function DigitalProductsExplorer({ products }: { products: DigitalProduct
 function ProductCard({ product }: { product: DigitalProduct }) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const orderMutation = useOrderDigitalProduct();
   const [isOrdering, setIsOrdering] = useState(false);
 
   const handleOrder = async () => {
     if (!isAuthenticated) { router.push("/login"); return; }
     setIsOrdering(true);
     try {
-      await gamesApi.orderDigitalProduct(product.id, product.name, product.priceMmk);
+      await orderMutation.mutateAsync({ productId: product.id, name: product.name, amountMmk: product.priceMmk });
       toast.success("Order placed successfully!");
       router.push("/orders");
     } catch (err: unknown) {

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { settingsApi } from "@/lib/api";
+import { useAdminSettings, useGlobalNotice, useUpdateNotice, useUpdatePaymentSettings, useUpdateSecuritySettings } from "@/hooks/queries";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import Image from "next/image";
@@ -30,7 +30,12 @@ const paymentMethods = [
 ];
 
 export default function AdminSettingsPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: settings, isPending } = useAdminSettings();
+  const { data: noticeData } = useGlobalNotice();
+  const updatePaymentMutation = useUpdatePaymentSettings();
+  const updateNoticeMutation = useUpdateNotice();
+  const updateSecurityMutation = useUpdateSecuritySettings();
+
   const [payment, setPayment] = useState<PaymentSettings>({
     accountName: "",
     kbzPayNumber: "",
@@ -43,21 +48,21 @@ export default function AdminSettingsPage() {
   const [exchangeRate, setExchangeRate] = useState("");
 
   useEffect(() => {
-    settingsApi.getAdminSettings()
-      .then((settings) => {
-        if (settings.payment_settings) {
-          try { setPayment(JSON.parse(settings.payment_settings)); } catch { /* ignore */ }
-        }
-        if (settings.global_notice) setNotice(settings.global_notice);
-        if (settings.exchange_rate_thai_baht) setExchangeRate(settings.exchange_rate_thai_baht);
-      })
-      .catch(() => toast.error("Failed to load settings"))
-      .finally(() => setIsLoading(false));
-  }, []);
+    if (!settings) return;
+    if (settings.payment_settings) {
+      try { setPayment(JSON.parse(settings.payment_settings)); } catch { /* ignore */ }
+    }
+    if (settings.exchange_rate_thai_baht) setExchangeRate(settings.exchange_rate_thai_baht);
+  }, [settings]);
+
+  useEffect(() => {
+    if (!noticeData) return;
+    if (noticeData.notice) setNotice(noticeData.notice);
+  }, [noticeData]);
 
   const savePayment = async () => {
     try {
-      await settingsApi.updatePaymentSettings(payment as unknown as Record<string, string>);
+      await updatePaymentMutation.mutateAsync(payment as unknown as Record<string, string>);
       toast.success("Payment settings updated");
     } catch {
       toast.error("Failed to update payment settings");
@@ -66,7 +71,7 @@ export default function AdminSettingsPage() {
 
   const saveNotice = async () => {
     try {
-      await settingsApi.updateNotice(notice);
+      await updateNoticeMutation.mutateAsync(notice);
       toast.success("Notice updated");
     } catch {
       toast.error("Failed to update notice");
@@ -75,14 +80,14 @@ export default function AdminSettingsPage() {
 
   const saveSecurity = async () => {
     try {
-      await settingsApi.updateSecuritySettings(exchangeRate);
+      await updateSecurityMutation.mutateAsync(exchangeRate);
       toast.success("Security settings updated");
     } catch {
       toast.error("Failed to update security settings");
     }
   };
 
-  if (isLoading) {
+  if (isPending) {
     return <div className="space-y-6"><Skeleton className="h-64" /><Skeleton className="h-32" /></div>;
   }
 

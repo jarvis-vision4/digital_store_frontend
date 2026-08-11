@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { gamesApi } from "@/lib/api";
+import {
+  useDigitalProductsAdmin,
+  useCreateDigitalProduct,
+  useUpdateDigitalProduct,
+  useDeleteDigitalProduct,
+} from "@/hooks/queries";
 import type { DigitalProduct } from "@/types";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -17,28 +22,14 @@ import { formatMmk, errorMessage, resolveImageUrl } from "@/lib/utils";
 import { ImageUpload } from "@/components/image-upload";
 
 export default function AdminDigitalProductsPage() {
-  const [products, setProducts] = useState<DigitalProduct[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadProducts = async () => {
-    try {
-      const data = await gamesApi.getDigitalProductsAdmin();
-      setProducts(data);
-    } catch {
-      toast.error("Failed to load digital products");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadProducts(); }, []);
+  const { data: products = [], isLoading } = useDigitalProductsAdmin();
+  const deleteProduct = useDeleteDigitalProduct();
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this product?")) return;
     try {
-      await gamesApi.deleteDigitalProductAdmin(id);
+      await deleteProduct.mutateAsync(id);
       toast.success("Product deleted");
-      loadProducts();
     } catch {
       toast.error("Failed to delete product");
     }
@@ -48,7 +39,7 @@ export default function AdminDigitalProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Digital Products</h1>
-        <AddProductDialog onSuccess={loadProducts} />
+        <AddProductDialog />
       </div>
 
       {isLoading ? (
@@ -85,7 +76,7 @@ export default function AdminDigitalProductsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <EditProductDialog product={product} onSuccess={loadProducts} />
+                  <EditProductDialog product={product} />
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
@@ -99,34 +90,30 @@ export default function AdminDigitalProductsPage() {
   );
 }
 
-function AddProductDialog({ onSuccess }: { onSuccess: () => void }) {
+function AddProductDialog() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", category: "", description: "", priceMmk: "" });
   const [image, setImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createProduct = useCreateDigitalProduct();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await gamesApi.createDigitalProductAdmin(
-        {
+      await createProduct.mutateAsync({
+        dto: {
           name: form.name,
           category: form.category || undefined,
           description: form.description || undefined,
           priceMmk: Number(form.priceMmk),
         },
-        image ?? undefined,
-      );
+        image: image ?? undefined,
+      });
       toast.success("Product created");
       setOpen(false);
       setForm({ name: "", category: "", description: "", priceMmk: "" });
       setImage(null);
-      onSuccess();
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -160,14 +147,14 @@ function AddProductDialog({ onSuccess }: { onSuccess: () => void }) {
             <Label>Image (optional)</Label>
             <ImageUpload value={image} onChange={setImage} />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">{isSubmitting ? "Creating..." : "Create"}</Button>
+          <Button type="submit" disabled={createProduct.isPending} className="w-full">{createProduct.isPending ? "Creating..." : "Create"}</Button>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
 
-function EditProductDialog({ product, onSuccess }: { product: DigitalProduct; onSuccess: () => void }) {
+function EditProductDialog({ product }: { product: DigitalProduct }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     name: product.name,
@@ -177,31 +164,27 @@ function EditProductDialog({ product, onSuccess }: { product: DigitalProduct; on
     isAvailable: product.isAvailable,
   });
   const [image, setImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateProduct = useUpdateDigitalProduct();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     try {
-      await gamesApi.updateDigitalProductAdmin(
-        product.id,
-        {
+      await updateProduct.mutateAsync({
+        id: product.id,
+        dto: {
           name: form.name,
           category: form.category || undefined,
           description: form.description || undefined,
           priceMmk: Number(form.priceMmk),
           isAvailable: form.isAvailable,
         },
-        image ?? undefined,
-      );
+        image: image ?? undefined,
+      });
       toast.success("Product updated");
       setOpen(false);
       setImage(null);
-      onSuccess();
     } catch (err) {
       toast.error(errorMessage(err));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -242,7 +225,7 @@ function EditProductDialog({ product, onSuccess }: { product: DigitalProduct; on
             <Label>Image</Label>
             <ImageUpload value={image ?? product.image} onChange={setImage} />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">{isSubmitting ? "Saving..." : "Save"}</Button>
+          <Button type="submit" disabled={updateProduct.isPending} className="w-full">{updateProduct.isPending ? "Saving..." : "Save"}</Button>
         </form>
       </DialogContent>
     </Dialog>

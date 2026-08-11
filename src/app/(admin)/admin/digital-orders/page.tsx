@@ -1,40 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ordersApi } from "@/lib/api";
+import { useAdminDigitalOrders, useDeleteDigitalOrder, useDeliverDigitalOrder, useCancelDigitalOrder } from "@/hooks/queries";
 import { formatMmk, formatDate, errorMessage } from "@/lib/utils";
 import { statusVariant } from "@/lib/constants";
-import type { DigitalOrder } from "@/types";
 import { toast } from "sonner";
 import { Trash2, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AdminDigitalOrdersPage() {
-  const [orders, setOrders] = useState<DigitalOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const load = async () => {
-    try {
-      const data = await ordersApi.getDigitalOrdersAdmin();
-      setOrders(data);
-    } catch {
-      toast.error("Failed to load digital orders");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { load(); }, []);
+  const { data: orders = [], isLoading } = useAdminDigitalOrders();
+  const deleteMutation = useDeleteDigitalOrder();
+  const deliverMutation = useDeliverDigitalOrder();
+  const cancelMutation = useCancelDigitalOrder();
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this digital order permanently?")) return;
     try {
-      await ordersApi.deleteDigitalOrderAdmin(id);
+      await deleteMutation.mutateAsync(id);
       toast.success("Digital order deleted");
-      load();
     } catch {
       toast.error("Failed to delete digital order");
     }
@@ -42,9 +28,8 @@ export default function AdminDigitalOrdersPage() {
 
   const handleDeliver = async (id: number) => {
     try {
-      await ordersApi.deliverDigitalOrderAdmin(id);
+      await deliverMutation.mutateAsync(id);
       toast.success("Digital order delivered");
-      load();
     } catch (err) {
       toast.error(errorMessage(err));
     }
@@ -53,9 +38,8 @@ export default function AdminDigitalOrdersPage() {
   const handleCancel = async (id: number) => {
     if (!confirm("Cancel this digital order?")) return;
     try {
-      await ordersApi.cancelDigitalOrderAdmin(id);
+      await cancelMutation.mutateAsync(id);
       toast.success("Digital order cancelled");
-      load();
     } catch (err) {
       toast.error(errorMessage(err));
     }

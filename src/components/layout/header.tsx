@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { useWalletBalance } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +15,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Wallet, Gamepad2, Menu } from "lucide-react";
 import { formatMmk } from "@/lib/utils";
-import { walletApi } from "@/lib/api";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -23,14 +22,8 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const [balance, setBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    walletApi.getWalletBalance().then((data) => {
-      setBalance(Number(data.balance));
-    }).catch(() => {});
-  }, [isAuthenticated]);
+  const { data: balanceData } = useWalletBalance(isAuthenticated);
+  const balance = balanceData ? Number(balanceData.balance) : null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

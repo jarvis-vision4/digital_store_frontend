@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ordersApi } from "@/lib/api";
+import { useUserOrders, useUserDigitalOrders, useRateOrder } from "@/hooks/queries";
 import { formatMmk, formatDate } from "@/lib/utils";
 import { statusVariant } from "@/lib/constants";
 import type { Order, DigitalOrder } from "@/types";
@@ -37,32 +37,14 @@ function StarRating({ value, onChange, readonly }: { value: number; onChange?: (
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [digitalOrders, setDigitalOrders] = useState<DigitalOrder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadOrders = async () => {
-    setIsLoading(true);
-    try {
-      const [gameData, digitalData] = await Promise.all([
-        ordersApi.getUserOrders(),
-        ordersApi.getUserDigitalOrders(),
-      ]);
-      setOrders(gameData);
-      setDigitalOrders(digitalData);
-    } catch {
-      toast.error("Failed to load orders");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadOrders(); }, []);
+  const { data: orders = [], isLoading: isLoadingOrders } = useUserOrders();
+  const { data: digitalOrders = [], isLoading: isLoadingDigital } = useUserDigitalOrders();
+  const isLoading = isLoadingOrders || isLoadingDigital;
 
   const allOrders = useMemo(() => {
     const items: OrderItem[] = [
       ...orders.map((o) => ({ ...o, kind: "game" as const })),
-      ...digitalOrders.map((o) => ({ ...o, kind: "digital" as const })),
+      ...digitalOrders.map((o) => ({ ...o, kind: "digital" as const, productName: o.productName })),
     ];
     items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return items;
@@ -142,7 +124,7 @@ export default function OrdersPage() {
                         <div className="text-right space-y-2">
                           <p className="font-bold text-lg">{formatMmk(item.amountMmk)}</p>
                           {item.kind === "game" && item.status === "Success" && !item.rating && (
-                            <RateDialog order={item} onRated={loadOrders} />
+                            <RateDialog order={item} />
                           )}
                         </div>
                       </div>
@@ -158,25 +140,23 @@ export default function OrdersPage() {
   );
 }
 
-function RateDialog({ order, onRated }: { order: Order; onRated: () => void }) {
+function RateDialog({ order }: { order: Order }) {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const rateMutation = useRateOrder();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!rating) { toast.error("Please select a rating"); return; }
-    setIsSubmitting(true);
     try {
-      await ordersApi.rateOrder(order.id, { rating, reviewText: reviewText || undefined });
+      await rateMutation.mutateAsync({ orderId: order.id, dto: { rating, reviewText: reviewText || undefined } });
       toast.success("Thank you for your review!");
       setOpen(false);
-      onRated();
+      setRating(0);
+      setReviewText("");
     } catch {
       toast.error("Failed to submit review");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -207,8 +187,8 @@ function RateDialog({ order, onRated }: { order: Order; onRated: () => void }) {
               rows={3}
             />
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+          <Button type="submit" disabled={rateMutation.isPending} className="w-full">
+            {rateMutation.isPending ? "Submitting..." : "Submit Review"}
           </Button>
         </form>
       </DialogContent>
