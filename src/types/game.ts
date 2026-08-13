@@ -25,7 +25,6 @@ export interface Game {
   image: string;
   posterUrl: string | null;
   description: string | null;
-  minAmount: string;
   popular: boolean;
   isActive: boolean;
   sortOrder: number;
@@ -72,7 +71,6 @@ export interface CreateGameDto {
   image: string;
   posterUrl?: string;
   description?: string;
-  minAmount?: string;
   popular?: boolean;
   sortOrder?: number;
   packages: CreateGamePackageDto[];

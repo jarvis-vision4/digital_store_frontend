@@ -49,9 +49,6 @@ export function GameCard({ game, className }: { game: Game; className?: string }
               <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                 {categoryLabels[game.category] ?? game.category}
               </span>
-              {game.minAmount && (
-                <span className="text-xs font-bold text-primary">{game.minAmount}</span>
-              )}
             </div>
           </div>
         </Card>
@@ -86,7 +83,6 @@ export function GameCardFeatured({ game }: { game: Game }) {
               )}
             </div>
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{game.description}</p>
-            <span className="mt-2 inline-block text-sm font-semibold text-primary">{game.minAmount}</span>
           </div>
         </div>
       </Card>

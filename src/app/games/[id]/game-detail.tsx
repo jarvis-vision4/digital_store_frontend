@@ -95,11 +95,6 @@ export function GameDetail({ game }: { game: Game }) {
                     )}
                   </div>
                   <p className="text-muted-foreground mt-1.5">{game.description}</p>
-                  {game.minAmount && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <Badge variant="secondary" className="bg-muted">{game.minAmount}</Badge>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

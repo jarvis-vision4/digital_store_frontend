@@ -104,7 +104,6 @@ function AddGameDialog() {
     category: "mobile_games",
     image: "",
     description: "",
-    minAmount: "500 MMK",
     pkgName: "",
     pkgPrice: "",
   });
@@ -122,7 +121,6 @@ function AddGameDialog() {
         category: form.category as GameCategory,
         image: form.image,
         description: form.description || undefined,
-        minAmount: form.minAmount,
         packages: [
           {
             packageName: form.pkgName.trim(),
@@ -215,7 +213,6 @@ function EditGameDialog({ game }: { game: Game }) {
     category: game.category,
     image: game.image,
     description: game.description || "",
-    minAmount: game.minAmount,
   });
   const updateGame = useUpdateGame();
   const uploadImage = useUploadGameImage();
