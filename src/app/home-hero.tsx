@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, ShoppingCart, Gamepad2, Shield, Zap, Clock, Wallet } from "lucide-react";
 
 const features = [
-  "Game Top-Up & Digital Products",
+  "Digital Products & Top-Up Services",
   "Wallet Topup System",
   "Secure & Fast Service",
   "Trusted by 5000+ Customers",
@@ -59,7 +59,7 @@ export function HomeHero() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" className="rounded-full px-7 gap-2 font-semibold" asChild>
-                <Link href="/games">
+                <Link href="/digital-products">
                   <ShoppingCart className="h-4 w-4" /> Shop Now
                 </Link>
               </Button>

@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { BannerSlider } from "@/components/banner-slider";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getGames, getActiveBanners } from "@/actions/public";
+import { getDigitalProducts, getActiveBanners, getPublicReviews } from "@/actions/public";
 import { resolveImageUrl } from "@/lib/utils";
 import { HomeContent } from "./home-content";
 import { HomeHero } from "./home-hero";
@@ -15,11 +15,15 @@ export const revalidate = 60;
 
 export const metadata = {
   title: "Shwe Family Digital Store",
-  description: "One Stop Digital Solution For Everyone — Game top-ups, digital products, wallet topup, and more.",
+  description: "One Stop Digital Solution For Everyone — Digital products, wallet topup, and more.",
 };
 
 export default async function HomePage() {
-  const [games, banners] = await Promise.all([getGames(), getActiveBanners()]);
+  const [products, banners, reviews] = await Promise.all([
+    getDigitalProducts(),
+    getActiveBanners(),
+    getPublicReviews(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,8 +82,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Interactive content (products, features, games, reviews, CTA) */}
-      <HomeContent games={games} />
+      {/* Interactive content (products, features, reviews) */}
+      <HomeContent products={products} reviews={reviews} />
 
       <SiteFooter />
     </div>

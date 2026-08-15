@@ -1,4 +1,4 @@
-export * from "./use-games";
+export * from "./use-digital-products";
 export * from "./use-orders";
 export * from "./use-profile";
 export * from "./use-settings";

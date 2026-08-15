@@ -8,13 +8,8 @@ export type {
   ReferralInfo,
 } from "./auth";
 export type {
-  Game,
-  GameCategory,
-  GamePackage,
   DigitalProduct,
   CreateDigitalProductDto,
-  CreateGameDto,
-  CreatePackageDto,
 } from "./game";
 export type {
   Order,

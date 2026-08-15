@@ -6,7 +6,6 @@ import { Headphones, CreditCard, ShieldCheck, MapPin } from "lucide-react";
 
 const footerLinks = [
   { label: "Home", href: "/" },
-  { label: "Games", href: "/games" },
   { label: "Digital Products", href: "/digital-products" },
   { label: "Orders", href: "/orders" },
   { label: "Wallet", href: "/wallet" },

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Gamepad2,
   ShoppingCart,
   Users,
   Settings,
@@ -19,7 +18,6 @@ import {
 
 const adminLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/games", label: "Games", icon: Gamepad2 },
   { href: "/admin/digital-products", label: "Digital Products", icon: Key },
   { href: "/admin/digital-orders", label: "Digital Orders", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },

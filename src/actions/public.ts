@@ -1,7 +1,7 @@
 "use server";
 
 import { serverFetch } from "@/lib/server";
-import type { Game, DigitalProduct, PromotionalBanner } from "@/types";
+import type { DigitalProduct, PromotionalBanner, Order } from "@/types";
 
 /**
  * Server Actions for reading PUBLIC store data on the server.
@@ -9,18 +9,14 @@ import type { Game, DigitalProduct, PromotionalBanner } from "@/types";
  * rather than fetching in the browser with useEffect.
  */
 
-export async function getGames(): Promise<Game[]> {
-  return serverFetch<Game[]>("/games");
-}
-
-export async function getGame(id: string): Promise<Game> {
-  return serverFetch<Game>(`/games/${id}`);
-}
-
 export async function getActiveBanners(): Promise<PromotionalBanner[]> {
   return serverFetch<PromotionalBanner[]>("/banners");
 }
 
 export async function getDigitalProducts(): Promise<DigitalProduct[]> {
   return serverFetch<DigitalProduct[]>("/digital-products");
+}
+
+export async function getPublicReviews(): Promise<Order[]> {
+  return serverFetch<Order[]>("/reviews");
 }

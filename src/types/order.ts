@@ -15,6 +15,7 @@ export interface Order {
   reviewText: string | null;
   createdAt: string;
   updatedAt: string;
+  user?: { username: string };
 }
 
 export interface CreateOrderDto {

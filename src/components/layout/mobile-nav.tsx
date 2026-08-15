@@ -7,7 +7,7 @@ import { Home, Gamepad2, Wallet, ShoppingCart, User } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/games", label: "Products", icon: Gamepad2 },
+  { href: "/digital-products", label: "Products", icon: Gamepad2 },
   { href: "/wallet", label: "Topup", icon: Wallet },
   { href: "/orders", label: "Orders", icon: ShoppingCart },
   { href: "/profile", label: "Account", icon: User },

@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as settingsApi from "@/lib/api/settings";
-import { gamesKeys } from "./use-games";
 
 export const settingsKeys = {
   banners: ["settings", "banners"] as const,
@@ -83,7 +82,6 @@ export function useCreateBanner() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: settingsKeys.bannersAdmin });
       qc.invalidateQueries({ queryKey: settingsKeys.banners });
-      qc.invalidateQueries({ queryKey: gamesKeys.list });
     },
   });
 }
@@ -103,7 +101,6 @@ export function useUpdateBanner() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: settingsKeys.bannersAdmin });
       qc.invalidateQueries({ queryKey: settingsKeys.banners });
-      qc.invalidateQueries({ queryKey: gamesKeys.list });
     },
   });
 }

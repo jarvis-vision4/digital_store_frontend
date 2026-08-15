@@ -26,7 +26,6 @@ export function Header() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/games", label: "Games" },
     { href: "/digital-products", label: "Digital Products" },
     { href: "/wallet", label: "Topup Wallet" },
     { href: "/orders", label: "Orders" },

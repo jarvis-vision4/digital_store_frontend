@@ -5,15 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
-import { useGames, useUserOrders, useWalletBalance } from "@/hooks/queries";
+import { useUserOrders, useWalletBalance } from "@/hooks/queries";
 import { useProfile } from "@/hooks/queries/use-profile";
 import { formatMmk } from "@/lib/utils";
 import { ShoppingCart, Wallet, Clock } from "lucide-react";
-import { GameCard } from "@/components/game-card";
 
 export default function DashboardPage() {
   const { user: contextUser } = useAuth();
-  const { data: games, isLoading: isLoadingGames } = useGames();
   const { data: recentOrders = [], isLoading: isLoadingOrders } = useUserOrders();
   const { data: balanceData } = useWalletBalance();
   const { data: profile } = useProfile();
@@ -28,7 +26,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Welcome, {contextUser?.username}</h1>
-        <p className="text-muted-foreground">Manage your gaming top-ups and account</p>
+        <p className="text-muted-foreground">Manage your top-ups and account</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -49,26 +47,6 @@ export default function DashboardPage() {
           );
         })}
       </div>
-
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Popular Games</h2>
-          <Link href="/games" className="text-sm text-primary hover:underline">View All</Link>
-        </div>
-        {isLoadingGames ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i}><CardContent className="p-4"><Skeleton className="h-20" /></CardContent></Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {games?.filter((g) => g.popular).slice(0, 6).map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))}
-          </div>
-        )}
-      </section>
 
       <section>
         <div className="flex items-center justify-between mb-4">
