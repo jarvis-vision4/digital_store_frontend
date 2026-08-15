@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, Gamepad2, Wallet, ShoppingCart, User, MessageCircle } from "lucide-react";
+import { Home, Gamepad2, Wallet, ShoppingCart, User } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/digital-products", label: "Products", icon: Gamepad2 },
   { href: "/wallet", label: "Topup", icon: Wallet },
   { href: "/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/contact", label: "Contact", icon: MessageCircle },
   { href: "/profile", label: "Account", icon: User },
 ];
 
