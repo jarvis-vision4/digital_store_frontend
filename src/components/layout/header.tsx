@@ -29,6 +29,7 @@ export function Header() {
     { href: "/digital-products", label: "Digital Products" },
     { href: "/wallet", label: "Topup Wallet" },
     { href: "/orders", label: "Orders" },
+    { href: "/contact", label: "Contact Us" },
   ];
 
   return (

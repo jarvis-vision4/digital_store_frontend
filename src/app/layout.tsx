@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers/providers";
@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Shwe Family Digital Store",
   description: "Premium game top-up and digital product store",
+};
+
+export const viewport: Viewport = {
   themeColor: "#FFD700",
 };
 
