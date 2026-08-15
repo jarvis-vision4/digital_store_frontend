@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { GoogleIcon } from "@/components/google-icon";
+import { ShweLogo } from "@/components/shwe-logo";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -44,7 +45,7 @@ export default function RegisterPage() {
     try {
       await register({
         username: form.username,
-        email: form.email || undefined,
+        email: form.email,
         password: form.password,
         referralCode: form.referralCode || undefined,
       });
@@ -60,8 +61,11 @@ export default function RegisterPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Create Account</CardTitle>
-        <CardDescription>Join Shwe Family Digital Store</CardDescription>
+        <div className="flex justify-center mb-3">
+          <ShweLogo size={64} />
+        </div>
+        <CardTitle className="text-2xl">Shwe Family Digital Store</CardTitle>
+        <CardDescription>Create your account</CardDescription>
       </CardHeader>
       <CardContent>
         <Button
@@ -94,13 +98,14 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email (optional)</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="your@email.com"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
             />
           </div>
           <div className="space-y-2">
