@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
 import { SectionHeading } from "@/components/section-heading";
 import { GameCard, GameCardFeatured } from "@/components/game-card";
-import { Gamepad2, ChevronRight, Zap, ShieldCheck, Clock, Wallet, Star, CheckCircle, ChevronLeft } from "lucide-react";
+import { ChevronRight, Zap, ShieldCheck, Clock, Wallet, Star } from "lucide-react";
 import { categoryLabels } from "@/lib/constants";
 import { resolveImageUrl, cn } from "@/lib/utils";
 import type { Game } from "@/types";
@@ -184,7 +183,6 @@ function CustomerReviews() {
 
 /* ── Main HomeContent ── */
 export function HomeContent({ games }: { games: Game[] }) {
-  const { isAuthenticated } = useAuth();
   const popularGames = games.filter((g) => g.popular);
 
   return (
@@ -236,26 +234,6 @@ export function HomeContent({ games }: { games: Game[] }) {
 
       {/* Customer Reviews */}
       <CustomerReviews />
-
-      {/* CTA */}
-      {!isAuthenticated && (
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-amber-500" />
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="relative max-w-7xl mx-auto px-4 py-16 text-center">
-            <FadeIn>
-              <Gamepad2 className="h-12 w-12 mx-auto mb-4 text-white/90" />
-              <h2 className="text-3xl font-bold text-white mb-2">Start Playing Today</h2>
-              <p className="text-white/85 mb-6 max-w-md mx-auto">
-                Top up your favorite games instantly. Fast delivery, best prices.
-              </p>
-              <Button size="lg" variant="secondary" asChild className="rounded-full px-8 font-semibold">
-                <Link href="/register">Create Account</Link>
-              </Button>
-            </FadeIn>
-          </div>
-        </section>
-      )}
     </>
   );
 }

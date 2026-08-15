@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { GoogleIcon } from "@/components/google-icon";
+import { ShweLogo } from "@/components/shwe-logo";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -45,7 +46,10 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
+        <div className="flex justify-center mb-3">
+          <ShweLogo size={64} />
+        </div>
+        <CardTitle className="text-2xl">Shwe Family Digital Store</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent>
