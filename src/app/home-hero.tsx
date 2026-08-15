@@ -3,90 +3,119 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Sparkles, Package } from "lucide-react";
+import { CheckCircle, ShoppingCart, Gamepad2, Shield, Zap, Clock, Wallet } from "lucide-react";
 
-const stats = [
-  { label: "Happy Gamers", value: "50K+" },
-  { label: "Orders Delivered", value: "1M+" },
-  { label: "Avg. Delivery", value: "< 2 min" },
+const features = [
+  "Game Top-Up & Digital Products",
+  "Wallet Topup System",
+  "Secure & Fast Service",
+  "Trusted by 5000+ Customers",
+];
+
+const floatingProducts = [
+  { emoji: "🎮", label: "Games", x: 10, y: 5, delay: 0 },
+  { emoji: "💎", label: "Diamonds", x: 70, y: 0, delay: 0.15 },
+  { emoji: "🎧", label: "Music", x: 85, y: 40, delay: 0.3 },
+  { emoji: "🎬", label: "Movies", x: 5, y: 50, delay: 0.45 },
+  { emoji: "🤖", label: "AI Tools", x: 60, y: 60, delay: 0.2 },
+  { emoji: "📱", label: "Apps", x: 30, y: 10, delay: 0.35 },
 ];
 
 export function HomeHero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-background to-background" />
-      <div className="absolute -top-32 right-0 h-[420px] w-[420px] rounded-full bg-primary/25 blur-[100px]" />
-      <div className="absolute -bottom-40 -left-20 h-[360px] w-[360px] rounded-full bg-amber-400/20 blur-[120px]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:48px_48px] opacity-[0.04]" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-primary/[0.06] via-background to-background">
+      {/* Decorative blurs */}
+      <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-primary/15 blur-[120px]" />
+      <div className="absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-amber-300/10 blur-[100px]" />
 
-      <div className="relative max-w-7xl mx-auto px-4 pb-16 pt-20 md:pb-24 md:pt-28">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="relative max-w-7xl mx-auto px-4 py-14 md:py-20">
+        <div className="grid gap-10 md:grid-cols-2 items-center">
+          {/* Left — text */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Badge className="mb-6 border-primary/30 bg-primary/10 text-primary hover:bg-primary/10">
-              <Sparkles className="h-3 w-3 mr-1" /> Instant Top-Up &amp; Digital Goods
-            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold leading-[1.1] tracking-tight">
+              Shwe Family
+              <br />
+              <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">
+                Digital Store
+              </span>
+            </h1>
+
+            <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-md">
+              One Stop Digital Solution For Everyone
+            </p>
+
+            <ul className="mt-6 space-y-2.5">
+              {features.map((f) => (
+                <li key={f} className="flex items-center gap-2.5 text-sm font-medium">
+                  <CheckCircle className="h-[18px] w-[18px] text-primary shrink-0" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button size="lg" className="rounded-full px-7 gap-2 font-semibold" asChild>
+                <Link href="/games">
+                  <ShoppingCart className="h-4 w-4" /> Shop Now
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="rounded-full px-7 gap-2 font-semibold" asChild>
+                <Link href="/digital-products">See Services</Link>
+              </Button>
+            </div>
           </motion.div>
 
-          <motion.h1
-            className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          >
-            Top Up Your{" "}
-            <span className="bg-gradient-to-r from-primary via-amber-400 to-primary bg-clip-text text-transparent">
-              Favorite Games
-            </span>
-          </motion.h1>
-
-          <motion.p
-            className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            Shwe Family Digital Store brings you fast, secure game top-ups and digital
-            products — delivered instantly at the best prices.
-          </motion.p>
-
+          {/* Right — illustration */}
           <motion.div
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            className="relative flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Button size="lg" className="gap-2" asChild>
-              <Link href="/games">
-                Browse Games <ChevronRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="gap-2" asChild>
-              <Link href="/digital-products">
-                <Package className="h-4 w-4" /> Digital Products
-              </Link>
-            </Button>
-          </motion.div>
+            {/* Gold circle */}
+            <div className="relative h-[320px] w-[320px] md:h-[380px] md:w-[380px]">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-amber-200/20" />
+              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-primary/10 to-background border border-primary/10" />
 
-          <motion.div
-            className="mx-auto mt-14 grid max-w-2xl grid-cols-3 gap-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.7 }}
-          >
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-border/60 bg-card/60 px-4 py-5 backdrop-blur"
-              >
-                <div className="text-2xl font-extrabold text-primary">{s.value}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+              {/* Center icon */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-amber-500 shadow-xl shadow-primary/30">
+                  <Gamepad2 className="h-10 w-10 text-white" />
+                </div>
               </div>
-            ))}
+
+              {/* Floating product cards */}
+              {floatingProducts.map((p) => (
+                <motion.div
+                  key={p.label}
+                  className="absolute flex flex-col items-center gap-1"
+                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + p.delay, duration: 0.6 }}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border/60 shadow-lg text-2xl">
+                    {p.emoji}
+                  </div>
+                  <span className="text-[10px] font-medium text-muted-foreground">{p.label}</span>
+                </motion.div>
+              ))}
+
+              {/* "Trusted by 5000+" badge */}
+              <motion.div
+                className="absolute -right-2 bottom-8 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-xl"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.9, duration: 0.5 }}
+              >
+                <div className="text-sm font-bold text-foreground">Trusted by 5000+</div>
+                <div className="text-xs text-muted-foreground">Customers</div>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>

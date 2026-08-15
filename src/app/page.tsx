@@ -6,32 +6,20 @@ import { BannerSlider } from "@/components/banner-slider";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getGames, getActiveBanners } from "@/actions/public";
-import { resolveImageUrl, cn } from "@/lib/utils";
-import { categoryLabels } from "@/lib/constants";
+import { resolveImageUrl } from "@/lib/utils";
 import { HomeContent } from "./home-content";
 import { HomeHero } from "./home-hero";
-import Link from "next/link";
-import type { Game } from "@/types";
+import { SiteFooter } from "@/components/layout/footer";
 
 export const revalidate = 60;
 
 export const metadata = {
   title: "Shwe Family Digital Store",
-  description: "Premium game top-up and digital product store",
+  description: "One Stop Digital Solution For Everyone — Game top-ups, digital products, wallet topup, and more.",
 };
 
 export default async function HomePage() {
   const [games, banners] = await Promise.all([getGames(), getActiveBanners()]);
-
-  const categoryMap = games.reduce<Record<string, { count: number; sample: Game }>>(
-    (acc, g) => {
-      if (!acc[g.category]) acc[g.category] = { count: 0, sample: g };
-      acc[g.category].count += 1;
-      return acc;
-    },
-    {}
-  );
-  const categories = Object.entries(categoryMap);
 
   return (
     <div className="min-h-screen bg-background">
@@ -90,63 +78,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Browse by Category */}
-      {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 pb-12">
-          <SectionHeading
-            eyebrow="Explore"
-            title="Browse by Category"
-            description="Jump straight to the games you love."
-          />
-          <FadeIn>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-              {categories.map(([cat, { count, sample }]) => {
-                const imageUrl = resolveImageUrl(sample.image);
-                const isImage =
-                  imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
-                return (
-                  <Link
-                    key={cat}
-                    href="/games"
-                    className={cn(
-                      "group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-5 text-center transition-all",
-                      "hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
-                    )}
-                  >
-                    <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/10 opacity-60 blur-xl transition-opacity group-hover:opacity-100" />
-                    <div className="relative flex h-12 items-center justify-center text-3xl">
-                      {isImage ? (
-                        <img
-                          src={imageUrl}
-                          alt={sample.name}
-                          className="h-12 w-12 rounded-xl object-cover ring-2 ring-white/20"
-                        />
-                      ) : (
-                        <span>{sample.image || "🎮"}</span>
-                      )}
-                    </div>
-                    <h3 className="relative mt-3 text-sm font-semibold">
-                      {categoryLabels[cat] ?? cat}
-                    </h3>
-                    <p className="relative text-xs text-muted-foreground">{count} games</p>
-                  </Link>
-                );
-              })}
-            </div>
-          </FadeIn>
-        </section>
-      )}
-
-      {/* Interactive content (featured + all games + why us + CTA) — needs client auth */}
+      {/* Interactive content (products, features, games, reviews, CTA) */}
       <HomeContent games={games} />
 
-      <footer className="border-t py-8 pb-20 md:pb-8">
-        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
-            &copy; {new Date().getFullYear()} Shwe Family Digital Store. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
