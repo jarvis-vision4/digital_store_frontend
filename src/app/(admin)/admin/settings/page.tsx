@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAdminSettings, useGlobalNotice, useUpdateNotice, useUpdatePaymentSettings, useUpdateSecuritySettings } from "@/hooks/queries";
+import { useAdminSettings, useGlobalNotice, useUpdateNotice, useUpdatePaymentSettings, useUpdateSecuritySettings, useSupportContacts, useUpdateSupportContacts } from "@/hooks/queries";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import Image from "next/image";
@@ -29,12 +29,22 @@ const paymentMethods = [
   { key: "uabPayNumber" as const, label: "UAB Pay", image: "/photos/uab.png" },
 ];
 
+const contactFields = [
+  { key: "telegram" as const, label: "Telegram", placeholder: "https://t.me/your_username" },
+  { key: "tiktok" as const, label: "TikTok", placeholder: "https://www.tiktok.com/@username" },
+  { key: "facebook" as const, label: "Facebook", placeholder: "https://www.facebook.com/page" },
+  { key: "phone" as const, label: "Phone", placeholder: "+959..." },
+  { key: "viber" as const, label: "Viber", placeholder: "+959..." },
+];
+
 export default function AdminSettingsPage() {
   const { data: settings, isPending } = useAdminSettings();
   const { data: noticeData } = useGlobalNotice();
   const updatePaymentMutation = useUpdatePaymentSettings();
   const updateNoticeMutation = useUpdateNotice();
   const updateSecurityMutation = useUpdateSecuritySettings();
+  const updateSupportMutation = useUpdateSupportContacts();
+  const { data: supportContacts } = useSupportContacts();
 
   const [payment, setPayment] = useState<PaymentSettings>({
     accountName: "",
@@ -46,6 +56,13 @@ export default function AdminSettingsPage() {
   });
   const [notice, setNotice] = useState("");
   const [exchangeRate, setExchangeRate] = useState("");
+  const [contacts, setContacts] = useState({
+    telegram: "",
+    tiktok: "",
+    facebook: "",
+    phone: "",
+    viber: "",
+  });
 
   useEffect(() => {
     if (!settings) return;
@@ -59,6 +76,11 @@ export default function AdminSettingsPage() {
     if (!noticeData) return;
     if (noticeData.notice) setNotice(noticeData.notice);
   }, [noticeData]);
+
+  useEffect(() => {
+    if (!supportContacts) return;
+    setContacts((prev) => ({ ...prev, ...supportContacts }));
+  }, [supportContacts]);
 
   const savePayment = async () => {
     try {
@@ -84,6 +106,15 @@ export default function AdminSettingsPage() {
       toast.success("Security settings updated");
     } catch {
       toast.error("Failed to update security settings");
+    }
+  };
+
+  const saveSupport = async () => {
+    try {
+      await updateSupportMutation.mutateAsync(contacts);
+      toast.success("Contact channels updated");
+    } catch {
+      toast.error("Failed to update contact channels");
     }
   };
 
@@ -143,6 +174,26 @@ export default function AdminSettingsPage() {
           </div>
 
           <Button onClick={savePayment}><Save className="h-4 w-4 mr-2" /> Save Payment Settings</Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact Channels</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {contactFields.map(({ key, label, placeholder }) => (
+            <div key={key} className="space-y-2">
+              <Label htmlFor={`contact-${key}`}>{label}</Label>
+              <Input
+                id={`contact-${key}`}
+                value={contacts[key]}
+                onChange={(e) => setContacts({ ...contacts, [key]: e.target.value })}
+                placeholder={placeholder}
+              />
+            </div>
+          ))}
+          <Button onClick={saveSupport}><Save className="h-4 w-4 mr-2" /> Save Contact Channels</Button>
         </CardContent>
       </Card>
 

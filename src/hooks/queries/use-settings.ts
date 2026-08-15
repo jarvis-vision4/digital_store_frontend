@@ -24,6 +24,17 @@ export function useSupportContacts() {
   return useQuery({ queryKey: settingsKeys.support, queryFn: settingsApi.getSupportContacts });
 }
 
+export function useUpdateSupportContacts() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (contacts: settingsApi.SupportContacts) => settingsApi.updateSupportContacts(contacts),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: settingsKeys.admin });
+      qc.invalidateQueries({ queryKey: settingsKeys.support });
+    },
+  });
+}
+
 export function useAdminSettings() {
   return useQuery({ queryKey: settingsKeys.admin, queryFn: settingsApi.getAdminSettings });
 }

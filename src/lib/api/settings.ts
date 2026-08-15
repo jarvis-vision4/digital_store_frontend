@@ -11,13 +11,21 @@ export async function getGlobalNotice(): Promise<{ notice: string }> {
   return data;
 }
 
-export async function getSupportContacts(): Promise<{
-  phone: string;
-  telegram: string;
-  viber: string;
-}> {
+export interface SupportContacts {
+  phone?: string;
+  viber?: string;
+  telegram?: string;
+  tiktok?: string;
+  facebook?: string;
+}
+
+export async function getSupportContacts(): Promise<SupportContacts> {
   const { data } = await apiClient.get("/support");
   return data;
+}
+
+export async function updateSupportContacts(contacts: SupportContacts): Promise<void> {
+  await apiClient.put("/admin/settings/support", contacts);
 }
 
 export async function getAdminSettings(): Promise<Record<string, string>> {

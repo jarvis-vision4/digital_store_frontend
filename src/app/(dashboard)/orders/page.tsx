@@ -15,6 +15,7 @@ import { statusVariant } from "@/lib/constants";
 import type { Order, DigitalOrder } from "@/types";
 import { toast } from "sonner";
 import { Star, CheckCircle2, Package } from "lucide-react";
+import { ContactUs } from "@/components/contact-us";
 
 type OrderItem = { kind: "game" } & Order | { kind: "digital" } & DigitalOrder;
 
@@ -73,68 +74,72 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
       ) : (
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="Pending">Pending</TabsTrigger>
-            <TabsTrigger value="Success">Completed</TabsTrigger>
-            <TabsTrigger value="Cancelled">Cancelled</TabsTrigger>
-          </TabsList>
+        <>
+          <Tabs defaultValue="all">
+            <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="Pending">Pending</TabsTrigger>
+              <TabsTrigger value="Success">Completed</TabsTrigger>
+              <TabsTrigger value="Cancelled">Cancelled</TabsTrigger>
+            </TabsList>
 
-          {["all", "Pending", "Success", "Cancelled"].map((tab) => (
-            <TabsContent key={tab} value={tab} className="space-y-4 mt-4">
-              {filterOrders(tab).length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No orders found</p>
-              ) : (
-                filterOrders(tab).map((item) => (
-                  <Card key={`${item.kind}-${item.id}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            {item.kind === "digital" && <Package className="h-4 w-4 text-muted-foreground" />}
-                            <h3 className="font-medium">{item.kind === "game" ? item.gameName : item.productName}</h3>
-                            <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
+            {["all", "Pending", "Success", "Cancelled"].map((tab) => (
+              <TabsContent key={tab} value={tab} className="space-y-4 mt-4">
+                {filterOrders(tab).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No orders found</p>
+                ) : (
+                  filterOrders(tab).map((item) => (
+                    <Card key={`${item.kind}-${item.id}`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              {item.kind === "digital" && <Package className="h-4 w-4 text-muted-foreground" />}
+                              <h3 className="font-medium">{item.kind === "game" ? item.gameName : item.productName}</h3>
+                              <Badge variant={statusVariant(item.status)}>{item.status}</Badge>
+                            </div>
+                            {item.kind === "game" && (
+                              <>
+                                <p className="text-sm text-muted-foreground">{item.packageName}</p>
+                                {item.playerId && (
+                                  <p className="text-sm text-muted-foreground">Player: {item.playerId}{item.zoneId ? ` (${item.zoneId})` : ""}</p>
+                                )}
+                                {item.deliveryContent && (
+                                  <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    <span>{item.deliveryContent}</span>
+                                  </div>
+                                )}
+                                {item.rating && (
+                                  <div className="mt-2 flex items-center gap-2">
+                                    <StarRating value={item.rating} readonly />
+                                    {item.reviewText && <span className="text-sm text-muted-foreground">&ldquo;{item.reviewText}&rdquo;</span>}
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            {item.kind === "digital" && (
+                              <p className="text-sm text-muted-foreground">Digital Product</p>
+                            )}
+                            <p className="text-xs text-muted-foreground mt-1">{formatDate(item.createdAt)}</p>
                           </div>
-                          {item.kind === "game" && (
-                            <>
-                              <p className="text-sm text-muted-foreground">{item.packageName}</p>
-                              {item.playerId && (
-                                <p className="text-sm text-muted-foreground">Player: {item.playerId}{item.zoneId ? ` (${item.zoneId})` : ""}</p>
-                              )}
-                              {item.deliveryContent && (
-                                <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  <span>{item.deliveryContent}</span>
-                                </div>
-                              )}
-                              {item.rating && (
-                                <div className="mt-2 flex items-center gap-2">
-                                  <StarRating value={item.rating} readonly />
-                                  {item.reviewText && <span className="text-sm text-muted-foreground">&ldquo;{item.reviewText}&rdquo;</span>}
-                                </div>
-                              )}
-                            </>
-                          )}
-                          {item.kind === "digital" && (
-                            <p className="text-sm text-muted-foreground">Digital Product</p>
-                          )}
-                          <p className="text-xs text-muted-foreground mt-1">{formatDate(item.createdAt)}</p>
+                          <div className="text-right space-y-2">
+                            <p className="font-bold text-lg">{formatMmk(item.amountMmk)}</p>
+                            {item.kind === "game" && item.status === "Success" && !item.rating && (
+                              <RateDialog order={item} />
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right space-y-2">
-                          <p className="font-bold text-lg">{formatMmk(item.amountMmk)}</p>
-                          {item.kind === "game" && item.status === "Success" && !item.rating && (
-                            <RateDialog order={item} />
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+
+          <ContactUs />
+        </>
       )}
     </div>
   );
