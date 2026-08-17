@@ -59,8 +59,9 @@ export async function updateDigitalProductAdmin(
   return data;
 }
 
-export async function deleteDigitalProductAdmin(id: number): Promise<void> {
-  await apiClient.delete(`/admin/digital-products/${id}`);
+export async function deleteDigitalProductAdmin(id: number): Promise<{ message: string }> {
+  const { data } = await apiClient.delete<{ message: string }>(`/admin/digital-products/${id}`);
+  return data;
 }
 
 export async function orderDigitalProduct(

@@ -135,8 +135,8 @@ export default function AdminDigitalProductsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this product?")) return;
     try {
-      await deleteProduct.mutateAsync(id);
-      toast.success("Product deleted");
+      const res = await deleteProduct.mutateAsync(id);
+      toast.success(res?.message || "Product deleted");
     } catch {
       toast.error("Failed to delete product");
     }
