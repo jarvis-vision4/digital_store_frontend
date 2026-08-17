@@ -9,9 +9,10 @@ import { formatMmk, resolveImageUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useOrderDigitalProduct } from "@/hooks/queries";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
-import type { DigitalProduct, DigitalProductVariant } from "@/types";
+import type { DigitalProduct } from "@/types";
 import { toast } from "sonner";
 import { ShoppingCart, Search, Check, Package } from "lucide-react";
+import { PlanDetailsModal } from "@/components/plan-details-modal";
 
 const categories = [
   "All Products",
@@ -109,47 +110,15 @@ export function DigitalProductsExplorer({ products }: { products: DigitalProduct
   );
 }
 
-function VariantPicker({
-  variants,
-  selected,
-  onSelect,
-}: {
-  variants: DigitalProductVariant[];
-  selected: DigitalProductVariant | null;
-  onSelect: (v: DigitalProductVariant) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {variants.map((v) => (
-        <button
-          key={v.id}
-          type="button"
-          aria-pressed={selected?.id === v.id}
-          onClick={() => onSelect(v)}
-          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-            selected?.id === v.id
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-border text-muted-foreground hover:border-primary/40"
-          }`}
-        >
-          {v.name}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function ProductCard({ product }: { product: DigitalProduct }) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const orderMutation = useOrderDigitalProduct();
   const [isOrdering, setIsOrdering] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
-  const activeVariants = product.variants?.filter((v) => v.isActive) ?? [];
-  const [selectedVariant, setSelectedVariant] = useState<DigitalProductVariant | null>(
-    activeVariants[0] ?? null,
-  );
-  const displayPrice = selectedVariant ? Number(selectedVariant.priceMmk) : Number(product.priceMmk);
+  const defaultVariant = product.variants?.find((v) => v.isActive) ?? null;
+  const displayPrice = defaultVariant ? Number(defaultVariant.priceMmk) : Number(product.priceMmk);
 
   const handleOrder = async () => {
     if (!isAuthenticated) {
@@ -162,8 +131,8 @@ function ProductCard({ product }: { product: DigitalProduct }) {
         productId: product.id,
         name: product.name,
         amountMmk: displayPrice,
-        variant: selectedVariant
-          ? { id: selectedVariant.id, name: selectedVariant.name }
+        variant: defaultVariant
+          ? { id: defaultVariant.id, name: defaultVariant.name }
           : undefined,
       });
       toast.success("Order placed successfully!");
@@ -177,7 +146,13 @@ function ProductCard({ product }: { product: DigitalProduct }) {
   };
 
   return (
-    <Card className="group flex flex-col overflow-hidden border-border rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
+    <>
+      <PlanDetailsModal
+        product={product}
+        open={showPlans}
+        onOpenChange={setShowPlans}
+      />
+      <Card className="group flex flex-col overflow-hidden border-border rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
       <div className="relative h-40 bg-gradient-to-br from-primary/5 to-secondary/30 flex items-center justify-center p-6">
         {product.image ? (
           <img
@@ -218,14 +193,6 @@ function ProductCard({ product }: { product: DigitalProduct }) {
           </ul>
         )}
 
-        {activeVariants.length > 0 && (
-          <VariantPicker
-            variants={activeVariants}
-            selected={selectedVariant}
-            onSelect={setSelectedVariant}
-          />
-        )}
-
         <div className="mt-auto pt-4 border-t border-border">
           <div className="flex items-center justify-between">
             <div>
@@ -236,7 +203,7 @@ function ProductCard({ product }: { product: DigitalProduct }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push(`/digital-products/${product.id}`)}
+                onClick={() => setShowPlans(true)}
                 className="border-border text-foreground hover:bg-accent"
               >
                 Plans
@@ -254,5 +221,6 @@ function ProductCard({ product }: { product: DigitalProduct }) {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }
