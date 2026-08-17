@@ -17,6 +17,10 @@ export async function getDigitalProducts(): Promise<DigitalProduct[]> {
   return serverFetch<DigitalProduct[]>("/digital-products");
 }
 
+export async function getDigitalProductById(id: number): Promise<DigitalProduct> {
+  return serverFetch<DigitalProduct>(`/digital-products/${id}`);
+}
+
 export async function getPublicReviews(): Promise<Order[]> {
   return serverFetch<Order[]>("/reviews");
 }
