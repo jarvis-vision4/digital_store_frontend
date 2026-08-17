@@ -64,112 +64,115 @@ export function PlanDetailsModal({ product, open, onOpenChange }: PlanDetailsMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <div className="flex items-start gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-              {product.image ? (
-                <img
-                  src={resolveImageUrl(product.image)}
-                  alt={product.name}
-                  className="h-16 w-16 rounded-2xl object-cover"
-                />
-              ) : (
-                <Package className="h-8 w-8 text-primary" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <DialogTitle className="text-xl font-bold">{product.name}</DialogTitle>
-                {product.badge && (
-                  <Badge className="bg-primary text-primary-foreground border-none text-[10px] px-1.5 py-0.5">
-                    {product.badge}
-                  </Badge>
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-hidden p-0 gap-0">
+        {/* Scrollable body */}
+        <div className="overflow-y-auto max-h-[calc(90vh-76px)]">
+          {/* Header */}
+          <div className="p-6 pb-4">
+            <div className="flex items-start gap-4">
+              <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                {product.image ? (
+                  <img
+                    src={resolveImageUrl(product.image)}
+                    alt={product.name}
+                    className="h-16 w-16 rounded-2xl object-cover"
+                  />
+                ) : (
+                  <Package className="h-8 w-8 text-primary" />
                 )}
               </div>
-              <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                {Number(product.rating) > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    {Number(product.rating).toFixed(1)} Rating
-                  </span>
-                )}
-                {Number(product.salesCount) > 0 && (
-                  <span>{product.salesCount}+ Sales</span>
-                )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 pr-8">
+                  <DialogTitle className="text-xl font-bold">{product.name}</DialogTitle>
+                  {product.badge && (
+                    <Badge className="bg-primary text-primary-foreground border-none text-[10px] px-1.5 py-0.5 shrink-0">
+                      {product.badge}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                  {Number(product.rating) > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      {Number(product.rating).toFixed(1)} Rating
+                    </span>
+                  )}
+                  {Number(product.salesCount) > 0 && (
+                    <span>{product.salesCount}+ Sales</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Description */}
-        {product.description && (
+          {/* Description */}
+          {product.description && (
+            <div className="px-6 pb-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+          )}
+
+          {/* Plan Selection */}
           <div className="px-6 pb-4">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {product.description}
-            </p>
-          </div>
-        )}
-
-        {/* Plan Selection */}
-        <div className="px-6 pb-4">
-          <h3 className="text-sm font-semibold mb-3">Select Subscription Plan / Duration:</h3>
-          <div className="space-y-2">
-            {activeVariants.map((variant) => (
-              <button
-                key={variant.id}
-                type="button"
-                onClick={() => setSelectedVariant(variant)}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                  selectedVariant?.id === variant.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-foreground">{variant.name}</span>
-                      {(variant as any).badge && (
-                        <Badge className="bg-primary text-primary-foreground border-none text-[10px] px-1.5 py-0.5">
-                          {(variant as any).badge}
-                        </Badge>
+            <h3 className="text-sm font-semibold mb-3">Select Subscription Plan / Duration:</h3>
+            <div className="space-y-2">
+              {activeVariants.map((variant) => (
+                <button
+                  key={variant.id}
+                  type="button"
+                  onClick={() => setSelectedVariant(variant)}
+                  className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                    selectedVariant?.id === variant.id
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-foreground">{variant.name}</span>
+                        {(variant as any).badge && (
+                          <Badge className="bg-primary text-primary-foreground border-none text-[10px] px-1.5 py-0.5">
+                            {(variant as any).badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{variant.durationDays} Days</span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold text-foreground">{formatMmk(Number(variant.priceMmk))}</p>
+                      {variant.priceUsd && (
+                        <p className="text-xs text-muted-foreground">${variant.priceUsd} USD</p>
                       )}
                     </div>
-                    <span className="text-xs text-muted-foreground">{variant.durationDays} Days</span>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-foreground">{formatMmk(Number(variant.priceMmk))}</p>
-                    {variant.priceUsd && (
-                      <p className="text-xs text-muted-foreground">${variant.priceUsd} USD</p>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Features */}
-        {product.features && product.features.length > 0 && (
-          <div className="px-6 pb-4">
-            <h3 className="text-sm font-semibold mb-3">Included Package Features:</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {product.features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-primary shrink-0" />
-                  <span>{feature.name}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Actions */}
-        <div className="p-6 pt-2 flex gap-3 border-t border-border">
+          {/* Features */}
+          {product.features && product.features.length > 0 && (
+            <div className="px-6 pb-4">
+              <h3 className="text-sm font-semibold mb-3">Included Package Features:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {product.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-primary shrink-0" />
+                    <span className="break-words">{feature.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Sticky actions */}
+        <div className="p-4 border-t border-border bg-background">
           <Button
-            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={handleOrder}
             disabled={isOrdering || !product.inStock}
           >
