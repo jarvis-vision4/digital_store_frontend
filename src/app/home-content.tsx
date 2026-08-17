@@ -208,14 +208,14 @@ export function HomeContent({ products, reviews }: { products: DigitalProduct[];
       {/* Top Digital Products */}
       <TopProducts products={products} />
 
-      {/* Why Choose Us */}
-      <WhyChooseUs />
-
       {/* Trending Digital Products */}
       <ProductGrid products={products} />
 
       {/* Customer Reviews */}
       <CustomerReviews reviews={reviews} />
+
+      {/* Why Choose Us */}
+      <WhyChooseUs />
     </>
   );
 }
