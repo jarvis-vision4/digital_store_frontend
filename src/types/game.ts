@@ -41,6 +41,7 @@ export interface DigitalProduct {
 }
 
 export interface CreateDigitalProductVariantDto {
+  id?: number;
   name: string;
   durationDays: number;
   priceMmk: number;

@@ -22,6 +22,7 @@ import { formatMmk, errorMessage, resolveImageUrl } from "@/lib/utils";
 import { ImageUpload } from "@/components/image-upload";
 
 interface VariantForm {
+  id?: number;
   name: string;
   durationDays: string;
   priceMmk: string;
@@ -223,6 +224,7 @@ function AddProductDialog() {
       const variantDtos: CreateDigitalProductVariantDto[] = variants
         .filter((v) => v.name.trim() && v.priceMmk)
         .map((v, i) => ({
+          ...(v.id ? { id: v.id } : {}),
           name: v.name.trim(),
           durationDays: Number(v.durationDays) || 0,
           priceMmk: Number(v.priceMmk),
@@ -318,6 +320,7 @@ function EditProductDialog({ product }: { product: DigitalProduct }) {
   });
   const [variants, setVariants] = useState<VariantForm[]>(
     product.variants?.map((v) => ({
+      id: v.id,
       name: v.name,
       durationDays: String(v.durationDays),
       priceMmk: String(v.priceMmk),
@@ -336,6 +339,7 @@ function EditProductDialog({ product }: { product: DigitalProduct }) {
       const variantDtos: CreateDigitalProductVariantDto[] = variants
         .filter((v) => v.name.trim() && v.priceMmk)
         .map((v, i) => ({
+          ...(v.id ? { id: v.id } : {}),
           name: v.name.trim(),
           durationDays: Number(v.durationDays) || 0,
           priceMmk: Number(v.priceMmk),
