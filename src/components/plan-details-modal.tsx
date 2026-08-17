@@ -13,7 +13,7 @@ import {
 import { formatMmk, resolveImageUrl } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useOrderDigitalProduct } from "@/hooks/queries";
-import { ShoppingCart, Star, Check, Package } from "lucide-react";
+import { Star, Check, Package } from "lucide-react";
 import type { DigitalProduct, DigitalProductVariant } from "@/types";
 import { toast } from "sonner";
 
@@ -60,11 +60,6 @@ export function PlanDetailsModal({ product, open, onOpenChange }: PlanDetailsMod
     } finally {
       setIsOrdering(false);
     }
-  };
-
-  const handleAddToCart = () => {
-    toast.success("Added to cart!");
-    onOpenChange(false);
   };
 
   return (
@@ -173,14 +168,6 @@ export function PlanDetailsModal({ product, open, onOpenChange }: PlanDetailsMod
 
         {/* Actions */}
         <div className="p-6 pt-2 flex gap-3 border-t border-border">
-          <Button
-            variant="outline"
-            className="flex-1 border-border"
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Add to Cart
-          </Button>
           <Button
             className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={handleOrder}
