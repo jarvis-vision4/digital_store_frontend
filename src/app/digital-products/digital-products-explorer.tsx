@@ -11,7 +11,7 @@ import { useOrderDigitalProduct } from "@/hooks/queries";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
 import type { DigitalProduct } from "@/types";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Check, Package, Plus } from "lucide-react";
+import { ShoppingCart, Search, Check, Package } from "lucide-react";
 import { PlanDetailsModal } from "@/components/plan-details-modal";
 
 const categories = [
@@ -202,12 +202,11 @@ function ProductCard({ product }: { product: DigitalProduct }) {
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 onClick={() => setShowPlans(true)}
-                aria-label={`View plans for ${product.name}`}
                 className="border-border text-foreground hover:bg-accent"
               >
-                <Plus className="h-4 w-4" />
+                Plans
               </Button>
               <Button
                 size="sm"

@@ -42,88 +42,62 @@ function WhyChooseUs() {
 }
 
 /* ── Product grid ── */
-const badgeColors: Record<string, string> = {
-  "HOT": "bg-yellow-400 text-yellow-900",
-  "POPULAR": "bg-yellow-400 text-yellow-900",
-  "BUSINESS": "bg-yellow-400 text-yellow-900",
-  "4K UHD": "bg-yellow-400 text-yellow-900",
-  "SONNET 3.7": "bg-yellow-400 text-yellow-900",
-  "2M CONTEXT": "bg-yellow-400 text-yellow-900",
-  "V6.1": "bg-yellow-400 text-yellow-900",
-  "BESTSELLER": "bg-yellow-400 text-yellow-900",
-  "OFFICIAL": "bg-yellow-400 text-yellow-900",
-  "PRO": "bg-yellow-400 text-yellow-900",
-  "PREMIUM": "bg-yellow-400 text-yellow-900",
-};
-
 function ProductGrid({ products }: { products: DigitalProduct[] }) {
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
-      {/* Section Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-8 bg-yellow-400 rounded-full" />
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Top Digital Products</h2>
-        </div>
-        <Link
-          href="/digital-products"
-          className="text-yellow-600 hover:text-yellow-700 font-medium text-sm flex items-center gap-1 transition-colors"
-        >
-          View All Products <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      {/* Products Grid */}
+      <SectionHeading
+        eyebrow="Hot Right Now"
+        title="Top Digital Products"
+        description="The most popular products from our store."
+        action={
+          <Button variant="ghost" asChild className="gap-1 shrink-0">
+            <Link href="/digital-products">View All <ChevronRight className="h-4 w-4" /></Link>
+          </Button>
+        }
+      />
       <Stagger className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {products.slice(0, 8).map((product) => (
           <StaggerItem key={product.id}>
             <Link
-              href={`/digital-products/${product.id}`}
-              className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-yellow-400 hover:shadow-lg hover:shadow-yellow-400/10"
+              href="/digital-products"
+              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
             >
-              {/* Icon + Badge */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden">
-                  {product.image ? (
-                    <img
-                      src={resolveImageUrl(product.image)}
-                      alt={product.name}
-                      className="h-14 w-14 object-cover"
-                    />
-                  ) : (
-                    <Tag className="h-6 w-6 text-slate-400" />
-                  )}
-                </div>
-                {product.badge && (
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                      badgeColors[product.badge] || "bg-yellow-400 text-yellow-900"
-                    }`}
-                  >
-                    {product.badge}
+              <div className="relative flex h-32 items-center justify-center bg-gradient-to-br from-primary/15 via-card to-secondary/15">
+                {product.image ? (
+                  <img
+                    src={resolveImageUrl(product.image)}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <Tag className="h-10 w-10 text-primary/50" />
+                )}
+                {!product.inStock && (
+                  <span className="absolute top-2 right-2 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-semibold text-white">
+                    Out of Stock
                   </span>
                 )}
               </div>
-
-              {/* Name + Description */}
-              <h3 className="font-bold text-base text-slate-900 mb-1">{product.name}</h3>
-              {product.description && (
-                <p className="text-sm text-slate-500 line-clamp-2 mb-4">{product.description}</p>
-              )}
-
-              {/* Price + Add Button */}
-              <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
-                <span className="font-bold text-lg text-slate-900">{formatMmk(product.priceMmk)}</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // Handle add to cart
-                  }}
-                  className="h-10 w-10 rounded-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 flex items-center justify-center transition-colors"
-                >
-                  <span className="text-xl leading-none">+</span>
-                </button>
+              <div className="flex flex-1 flex-col p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="truncate text-sm font-semibold">{product.name}</h3>
+                  {product.badge && (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      <Flame className="h-3 w-3" /> {product.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground capitalize">{product.category}</p>
+                <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+                  {Number(product.rating) > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-primary text-primary" />
+                      {Number(product.rating).toFixed(1)}
+                    </span>
+                  )}
+                  {Number(product.salesCount) > 0 && <span>{product.salesCount} sold</span>}
+                </div>
+                <span className="mt-2 text-sm font-bold text-primary">{formatMmk(product.priceMmk)}</span>
               </div>
             </Link>
           </StaggerItem>
