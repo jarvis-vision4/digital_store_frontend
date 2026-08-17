@@ -53,6 +53,7 @@ export function BannerSlider({ children, className }: { children: React.ReactNod
             size="icon"
             className="h-10 w-10 rounded-full shadow-xl bg-background/90 backdrop-blur pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => scroll("left")}
+            aria-label="Scroll banners left"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -65,6 +66,7 @@ export function BannerSlider({ children, className }: { children: React.ReactNod
             size="icon"
             className="h-10 w-10 rounded-full shadow-xl bg-background/90 backdrop-blur pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => scroll("right")}
+            aria-label="Scroll banners right"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>

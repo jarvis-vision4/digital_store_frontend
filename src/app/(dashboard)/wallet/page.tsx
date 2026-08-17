@@ -97,7 +97,7 @@ export default function WalletPage() {
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-primary" /> Current Balance
             </CardTitle>
-            <Button variant="ghost" size="icon" onClick={loadData}>
+            <Button variant="ghost" size="icon" aria-label="Refresh balance" onClick={loadData}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </CardHeader>
@@ -120,7 +120,8 @@ export default function WalletPage() {
               <code className="flex-1 px-3 py-2 bg-muted rounded-md text-sm font-mono">
                 {referralCode}
               </code>
-              <Button variant="outline" size="icon" onClick={copyReferral}>
+              <Button variant="outline" size="icon" aria-label="Copy referral code" onClick={copyReferral}>
+                <span className="sr-only">Copy referral code</span>
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>

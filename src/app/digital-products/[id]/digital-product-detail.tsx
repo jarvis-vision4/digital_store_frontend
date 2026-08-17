@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useOrderDigitalProduct } from "@/hooks/queries";
 import type { DigitalProduct, DigitalProductVariant } from "@/types";
 import { toast } from "sonner";
-import { Check, ChevronLeft, Flame, ShoppingCart, Star } from "lucide-react";
+import { Check, ChevronLeft, ShoppingCart, Star, Package } from "lucide-react";
 
 export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
   const router = useRouter();
@@ -52,9 +52,8 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
       </Link>
 
       <div className="grid gap-8 lg:grid-cols-2 items-start">
-        {/* Image */}
         <Card className="overflow-hidden">
-          <div className="relative h-72 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-8">
+          <div className="relative h-72 bg-gradient-to-br from-primary/5 to-secondary/30 flex items-center justify-center p-8">
             {product.image ? (
               <img
                 src={resolveImageUrl(product.image)}
@@ -62,21 +61,22 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
                 className="h-full w-full object-contain"
               />
             ) : (
-              <span className="text-7xl">📦</span>
+              <div className="h-32 w-32 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Package className="h-14 w-14 text-primary" />
+              </div>
             )}
             {product.badge && (
-              <Badge className="absolute top-4 right-4 border-none bg-yellow-400 text-yellow-900 px-3 py-1 text-xs font-bold uppercase">
-                <Flame className="h-3 w-3 mr-1" /> {product.badge}
+              <Badge className="absolute top-4 right-4 border-none bg-primary text-primary-foreground px-3 py-1 text-xs font-bold uppercase">
+                {product.badge}
               </Badge>
             )}
           </div>
         </Card>
 
-        {/* Info */}
         <div className="space-y-5">
           <div>
             <Badge variant="outline" className="mb-2">{product.category}</Badge>
-            <h1 className="text-3xl font-bold text-slate-900">{product.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
             {product.description && (
               <p className="text-muted-foreground mt-2">{product.description}</p>
             )}
@@ -91,7 +91,6 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
             </div>
           </div>
 
-          {/* Features */}
           {product.features && product.features.length > 0 && (
             <div>
               <h3 className="font-semibold mb-2">What&apos;s included</h3>
@@ -106,7 +105,6 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
             </div>
           )}
 
-          {/* Variants */}
           {activeVariants.length > 0 && (
             <div>
               <h3 className="font-semibold mb-2">Choose a plan</h3>
@@ -115,11 +113,12 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
                   <button
                     key={v.id}
                     type="button"
+                    aria-pressed={selectedVariant?.id === v.id}
                     onClick={() => setSelectedVariant(v)}
                     className={`text-left rounded-xl border p-4 transition-colors ${
                       selectedVariant?.id === v.id
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-border/60 hover:border-yellow-400/60"
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/60"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -138,11 +137,10 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
             </div>
           )}
 
-          {/* Price + CTA */}
-          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card p-4">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
             <div>
               <p className="text-xs text-muted-foreground">{selectedVariant ? "Plan price" : "Price"}</p>
-              <p className="text-2xl font-bold text-primary">{formatMmk(displayPrice)}</p>
+              <p className="text-2xl font-bold text-foreground">{formatMmk(displayPrice)}</p>
             </div>
             <Button size="lg" onClick={handleOrder} disabled={isOrdering || !product.inStock} className="gap-2 font-semibold">
               {isOrdering ? "..." : <><ShoppingCart className="h-4 w-4" /> Buy Now</>}

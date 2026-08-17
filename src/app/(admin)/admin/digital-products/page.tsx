@@ -81,7 +81,7 @@ function VariantsEditor({
             value={v.badge}
             onChange={(e) => update(i, { badge: e.target.value })}
           />
-          <Button type="button" variant="ghost" size="icon" onClick={() => onChange(variants.filter((_, idx) => idx !== i))}>
+          <Button type="button" variant="ghost" size="icon" aria-label={`Remove variant ${i + 1}`} onClick={() => onChange(variants.filter((_, idx) => idx !== i))}>
             <Trash2 className="h-4 w-4 text-muted-foreground" />
           </Button>
         </div>
@@ -116,7 +116,7 @@ function FeaturesEditor({
             value={f.name}
             onChange={(e) => update(i, { name: e.target.value })}
           />
-          <Button type="button" variant="ghost" size="icon" onClick={() => onChange(features.filter((_, idx) => idx !== i))}>
+          <Button type="button" variant="ghost" size="icon" aria-label={`Remove feature ${i + 1}`} onClick={() => onChange(features.filter((_, idx) => idx !== i))}>
             <Trash2 className="h-4 w-4 text-muted-foreground" />
           </Button>
         </div>
@@ -197,7 +197,7 @@ export default function AdminDigitalProductsPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <EditProductDialog product={product} />
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
+                  <Button variant="ghost" size="icon" aria-label={`Delete ${product.name}`} onClick={() => handleDelete(product.id)}>
                     <Trash2 className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </div>
@@ -375,7 +375,7 @@ function EditProductDialog({ product }: { product: DigitalProduct }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon" aria-label={`Edit ${product.name}`}><Pencil className="h-4 w-4" /></Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>

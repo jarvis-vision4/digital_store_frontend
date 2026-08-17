@@ -71,7 +71,7 @@ export default function AdminBannersPage() {
               </CardContent>
               <CardContent className="pt-0 flex items-center justify-end">
                 <EditBannerDialog banner={banner} />
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(banner.id)}>
+                <Button variant="ghost" size="icon" aria-label={`Delete banner ${banner.title}`} onClick={() => handleDelete(banner.id)}>
                   <Trash2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </CardContent>
@@ -203,7 +203,7 @@ function EditBannerDialog({ banner }: { banner: PromotionalBanner }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon" aria-label={`Edit banner ${banner.title}`}><Pencil className="h-4 w-4" /></Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader><DialogTitle>Edit Banner</DialogTitle></DialogHeader>

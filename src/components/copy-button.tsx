@@ -20,7 +20,8 @@ export function CopyButton({ text, className }: { text: string; className?: stri
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleCopy} type="button" className={className}>
+    <Button variant="ghost" size="icon" onClick={handleCopy} type="button" aria-label="Copy to clipboard" className={className}>
+      <span className="sr-only">Copy</span>
       {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
     </Button>
   );

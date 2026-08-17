@@ -101,7 +101,7 @@ export default function ProfilePage() {
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" /> Referral Program
             </CardTitle>
-            <Button variant="ghost" size="icon" onClick={() => refetchReferrals()}>
+            <Button variant="ghost" size="icon" aria-label="Refresh referral program" onClick={() => refetchReferrals()}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
@@ -112,7 +112,8 @@ export default function ProfilePage() {
             <code className="flex-1 px-3 py-2 bg-muted rounded-md text-sm font-mono">
               {user.referralCode}
             </code>
-            <Button variant="outline" size="icon" onClick={copyReferral}>
+            <Button variant="outline" size="icon" aria-label="Copy referral code" onClick={copyReferral}>
+              <span className="sr-only">Copy referral code</span>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
