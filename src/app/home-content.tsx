@@ -2,75 +2,11 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
+import { Stagger, StaggerItem } from "@/components/motion/fade-in";
 import { SectionHeading } from "@/components/section-heading";
 import { formatMmk, resolveImageUrl } from "@/lib/utils";
 import { ChevronRight, Zap, ShieldCheck, Clock, Wallet, Star, Tag, Flame } from "lucide-react";
 import type { DigitalProduct, Order } from "@/types";
-
-/* ── Top Products (category icon cards) ── */
-const categoryIcons: Record<string, string> = {
-  gift_card: "🎁",
-  social_service: "💬",
-  streaming: "🎬",
-  ai_tool: "🤖",
-  software: "💻",
-  redeem_code: "🔑",
-  mobile_app: "📲",
-};
-
-function TopProducts({ products }: { products: DigitalProduct[] }) {
-  const categoryMap = products.reduce<Record<string, { count: number; sample: DigitalProduct }>>(
-    (acc, p) => {
-      if (!acc[p.category]) acc[p.category] = { count: 0, sample: p };
-      acc[p.category].count += 1;
-      return acc;
-    },
-    {}
-  );
-  const categories = Object.entries(categoryMap);
-
-  if (categories.length === 0) return null;
-
-  return (
-    <section className="max-w-7xl mx-auto px-4 py-12">
-      <SectionHeading
-        eyebrow="Our Services"
-        title="Top Digital Products"
-        action={
-          <Button variant="ghost" asChild className="gap-1 shrink-0">
-            <Link href="/digital-products">View All <ChevronRight className="h-4 w-4" /></Link>
-          </Button>
-        }
-      />
-      <FadeIn>
-        <div className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 scrollbar-hide">
-          {categories.map(([cat, { count, sample }]) => (
-            <Link
-              key={cat}
-              href="/digital-products"
-              className="group/card shrink-0 snap-start flex flex-col items-center gap-3 rounded-2xl border border-border/60 bg-card px-5 py-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 w-[120px]"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-3xl transition-transform group-hover/card:scale-110">
-                {sample.image ? (
-                  <img
-                    src={resolveImageUrl(sample.image)}
-                    alt={sample.name}
-                    className="h-14 w-14 rounded-2xl object-cover"
-                  />
-                ) : (
-                  categoryIcons[cat] || "🛍️"
-                )}
-              </div>
-              <span className="text-xs font-semibold text-center leading-tight">{cat}</span>
-              <span className="text-[10px] text-muted-foreground">{count} items</span>
-            </Link>
-          ))}
-        </div>
-      </FadeIn>
-    </section>
-  );
-}
 
 /* ── Why Choose Us ── */
 const features = [
@@ -111,7 +47,7 @@ function ProductGrid({ products }: { products: DigitalProduct[] }) {
     <section className="max-w-7xl mx-auto px-4 py-12">
       <SectionHeading
         eyebrow="Hot Right Now"
-        title="Trending Digital Products"
+        title="Top Digital Products"
         description="The most popular products from our store."
         action={
           <Button variant="ghost" asChild className="gap-1 shrink-0">
@@ -222,9 +158,6 @@ export function HomeContent({ products, reviews }: { products: DigitalProduct[];
   return (
     <>
       {/* Top Digital Products */}
-      <TopProducts products={products} />
-
-      {/* Trending Digital Products */}
       <ProductGrid products={products} />
 
       {/* Customer Reviews */}
