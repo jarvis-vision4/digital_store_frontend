@@ -119,7 +119,14 @@ export default function OrdersPage() {
                               </>
                             )}
                             {item.kind === "digital" && (
-                              <p className="text-sm text-muted-foreground">Digital Product</p>
+                              <>
+                                <p className="text-sm text-muted-foreground">
+                                  {item.variantName || "Digital Product"}
+                                </p>
+                                {item.deliveryContent && (
+                                  <p className="text-xs text-muted-foreground mt-0.5">{item.deliveryContent}</p>
+                                )}
+                              </>
                             )}
                             <p className="text-xs text-muted-foreground mt-1">{formatDate(item.createdAt)}</p>
                           </div>

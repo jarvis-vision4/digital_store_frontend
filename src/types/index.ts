@@ -9,7 +9,11 @@ export type {
 } from "./auth";
 export type {
   DigitalProduct,
+  DigitalProductVariant,
+  DigitalProductFeature,
   CreateDigitalProductDto,
+  CreateDigitalProductVariantDto,
+  CreateDigitalProductFeatureDto,
 } from "./game";
 export type {
   Order,

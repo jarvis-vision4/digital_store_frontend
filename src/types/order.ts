@@ -36,10 +36,15 @@ export interface DigitalOrder {
   id: number;
   userId: number;
   digitalProductId: string;
+  digitalProductVariantId: string | null;
   productName: string;
+  variantName: string | null;
   amountMmk: number;
   status: string;
+  deliveryContent: string | null;
   createdAt: string;
   updatedAt: string;
   user?: { username: string; email: string };
+  digitalProduct?: { name: string };
+  digitalProductVariant?: { name: string; durationDays: number };
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion/fade-in";
 import { SectionHeading } from "@/components/section-heading";
 import { formatMmk, resolveImageUrl } from "@/lib/utils";
-import { ChevronRight, Zap, ShieldCheck, Clock, Wallet, Star, Tag } from "lucide-react";
+import { ChevronRight, Zap, ShieldCheck, Clock, Wallet, Star, Tag, Flame } from "lucide-react";
 import type { DigitalProduct, Order } from "@/types";
 
 /* ── Top Products (category icon cards) ── */
@@ -143,8 +143,24 @@ function ProductGrid({ products }: { products: DigitalProduct[] }) {
                 )}
               </div>
               <div className="flex flex-1 flex-col p-4">
-                <h3 className="truncate text-sm font-semibold">{product.name}</h3>
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="truncate text-sm font-semibold">{product.name}</h3>
+                  {product.badge && (
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      <Flame className="h-3 w-3" /> {product.badge}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-[11px] text-muted-foreground capitalize">{product.category}</p>
+                <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+                  {Number(product.rating) > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-primary text-primary" />
+                      {Number(product.rating).toFixed(1)}
+                    </span>
+                  )}
+                  {Number(product.salesCount) > 0 && <span>{product.salesCount} sold</span>}
+                </div>
                 <span className="mt-2 text-sm font-bold text-primary">{formatMmk(product.priceMmk)}</span>
               </div>
             </Link>

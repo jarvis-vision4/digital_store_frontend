@@ -64,7 +64,9 @@ export default function AdminDigitalOrdersPage() {
                       <h3 className="font-medium">{order.productName}</h3>
                       <Badge variant={statusVariant(order.status)}>{order.status}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">Order #{order.id}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {order.variantName || "Digital Product"} · Order #{order.id}
+                    </p>
                     {order.user && (
                       <p className="text-sm text-muted-foreground">
                         User: {order.user.username} ({order.user.email})
