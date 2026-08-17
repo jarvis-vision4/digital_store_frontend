@@ -116,7 +116,7 @@ function ProductCard({ product }: { product: DigitalProduct }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-            <Badge className="border-none bg-white/90 text-foreground backdrop-blur">{product.category}</Badge>
+            <Badge className="border-none bg-card/90 text-foreground backdrop-blur">{product.category}</Badge>
             {!product.inStock && <Badge variant="destructive" className="border-none">Out of Stock</Badge>}
           </div>
         </div>
@@ -124,7 +124,7 @@ function ProductCard({ product }: { product: DigitalProduct }) {
         <div className="relative h-44 bg-gradient-to-br from-primary/15 via-card to-secondary/15 flex items-center justify-center">
           <Tag className="h-12 w-12 text-primary/40" />
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-            <Badge className="border-none bg-white/90 text-foreground backdrop-blur">{product.category}</Badge>
+            <Badge className="border-none bg-card/90 text-foreground backdrop-blur">{product.category}</Badge>
             {!product.inStock && <Badge variant="destructive" className="border-none">Out of Stock</Badge>}
           </div>
         </div>

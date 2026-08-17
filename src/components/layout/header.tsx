@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ShweLogo } from "@/components/shwe-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Wallet, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { formatMmk } from "@/lib/utils";
 
@@ -69,6 +70,9 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* Wallet (auth only) */}
           {isAuthenticated && (
             <Link
