@@ -64,10 +64,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google" && profile?.email) {
         // Google sign-in: create/upsert the user in the backend users table,
         // and exchange the OAuth identity for an app JWT.
-        const name =
-          (profile as { name?: string }).name?.trim() ||
-          (profile.email as string).split("@")[0];
-        const username = (profile.email as string).split("@")[0];
+        const fallback = (profile.email as string).split("@")[0];
+        const name = (profile as { name?: string }).name?.trim() || fallback;
+        const username = name.length >= 3 ? name : fallback;
         try {
           const res = await fetch(`${API_URL}/auth/oauth`, {
             method: "POST",
