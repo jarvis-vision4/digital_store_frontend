@@ -6,20 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserOrders, useWalletBalance } from "@/hooks/queries";
-import { useProfile } from "@/hooks/queries/use-profile";
 import { formatMmk } from "@/lib/utils";
-import { ShoppingCart, Wallet, Clock } from "lucide-react";
+import { ShoppingCart, Wallet } from "lucide-react";
 
 export default function DashboardPage() {
   const { user: contextUser } = useAuth();
   const { data: recentOrders = [], isLoading: isLoadingOrders } = useUserOrders();
   const { data: balanceData } = useWalletBalance();
-  const { data: profile } = useProfile();
 
   const stats = [
     { label: "Wallet Balance", value: formatMmk(balanceData?.balance ?? 0), icon: Wallet, color: "text-blue-600" },
     { label: "Total Orders", value: recentOrders.length.toString(), icon: ShoppingCart, color: "text-green-600" },
-    { label: "VIP Level", value: profile?.vipName ?? contextUser?.vipName ?? "Standard Gamer", icon: Clock, color: "text-purple-600" },
   ];
 
   return (
@@ -29,7 +26,7 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Manage your top-ups and account</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (

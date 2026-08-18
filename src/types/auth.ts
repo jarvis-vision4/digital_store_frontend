@@ -6,8 +6,6 @@ export interface User {
   telegramChatId: string | null;
   referralCode: string;
   referredBy: string | null;
-  vipLevel: number;
-  vipName: string;
   discountRate: number;
   role: "ADMIN" | "MODERATOR" | "CUSTOMER";
   isActive: boolean;

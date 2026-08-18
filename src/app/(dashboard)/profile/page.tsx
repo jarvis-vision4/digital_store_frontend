@@ -84,10 +84,6 @@ export default function ProfilePage() {
               <p className="font-medium">{formatDate(user.createdAt)}</p>
             </div>
             <div>
-              <Label className="text-muted-foreground text-xs">VIP Level</Label>
-              <p className="font-medium">{user.vipName} (Lv.{user.vipLevel})</p>
-            </div>
-            <div>
               <Label className="text-muted-foreground text-xs">Discount Rate</Label>
               <p className="font-medium">{(Number(user.discountRate) * 100).toFixed(2)}%</p>
             </div>
