@@ -14,12 +14,14 @@ import {
   ScrollText,
   Key,
   Package,
+  MessageSquare,
 } from "lucide-react";
 
 const adminLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/digital-products", label: "Digital Products", icon: Key },
   { href: "/admin/digital-orders", label: "Digital Orders", icon: Package },
+  { href: "/admin/chat", label: "Support Chat", icon: MessageSquare },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/topups", label: "Topups", icon: Banknote },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },

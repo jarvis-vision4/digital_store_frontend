@@ -35,3 +35,4 @@ export type {
   SystemSetting,
   AuditLog,
 } from "./settings";
+export type { ChatMessage } from "./chat";

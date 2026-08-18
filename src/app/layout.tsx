@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers/providers";
 import { Toaster } from "sonner";
+import { ChatWidget } from "@/components/chat/chat-widget";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${jakarta.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           {children}
+          <ChatWidget />
           <Toaster richColors closeButton />
         </Providers>
       </body>
