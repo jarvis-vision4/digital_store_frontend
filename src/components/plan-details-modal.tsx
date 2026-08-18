@@ -172,7 +172,7 @@ export function PlanDetailsModal({ product, open, onOpenChange }: PlanDetailsMod
         {/* Sticky actions */}
         <div className="p-4 border-t border-border bg-background">
           <Button
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-full bg-brand-gradient text-primary-foreground shadow-brand hover:brightness-105"
             onClick={handleOrder}
             disabled={isOrdering || !product.inStock}
           >

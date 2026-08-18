@@ -212,7 +212,7 @@ function ProductCard({ product }: { product: DigitalProduct }) {
                 size="sm"
                 onClick={handleOrder}
                 disabled={isOrdering || !product.inStock}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold gap-1.5"
+                className="bg-brand-gradient text-primary-foreground shadow-brand hover:brightness-105 font-semibold gap-1.5"
               >
                 {isOrdering ? "..." : <><ShoppingCart className="h-4 w-4" /> Buy</>}
               </Button>

@@ -7,6 +7,8 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-light: var(--primary-light);
+  --color-primary-deep: var(--primary-deep);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -24,11 +26,13 @@
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --radius: 0.5rem;
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-blue: var(--brand-blue);
+  --radius: 0.75rem;
 }
 
 :root {
-  --background: #ffffff;
+  --background: #fffdf8;
   --foreground: #1d293d;
   --card: #ffffff;
   --card-foreground: #1d293d;
@@ -36,6 +40,8 @@
   --popover-foreground: #1d293d;
   --primary: #fac800;
   --primary-foreground: #432004;
+  --primary-light: #fff085;
+  --primary-deep: #edb200;
   --secondary: #fefce8;
   --secondary-foreground: #432004;
   --muted: #f8fafc;
@@ -44,11 +50,13 @@
   --accent-foreground: #432004;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #f0e6cf;
+  --input: #f0e6cf;
   --ring: #fac800;
   --sidebar: #fffbeb;
   --sidebar-foreground: #1d293d;
+  --brand-purple: #7360f2;
+  --brand-blue: #229ed9;
 }
 
 .dark {
@@ -60,6 +68,8 @@
   --popover-foreground: #f8fafc;
   --primary: #ffd700;
   --primary-foreground: #432004;
+  --primary-light: #fff085;
+  --primary-deep: #edb200;
   --secondary: #2b3649;
   --secondary-foreground: #f8fafc;
   --muted: #2b3649;
@@ -73,6 +83,8 @@
   --ring: #ffd700;
   --sidebar: #1d293d;
   --sidebar-foreground: #f8fafc;
+  --brand-purple: #7360f2;
+  --brand-blue: #229ed9;
 }
 
 @layer base {
@@ -93,6 +105,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  :root:not(.dark) body {
+    background-image: radial-gradient(
+      120% 80% at 50% -10%,
+      color-mix(in oklab, var(--color-primary) 9%, transparent),
+      transparent 60%
+    );
+    background-repeat: no-repeat;
+  }
   ::selection {
     background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
   }
@@ -110,6 +130,31 @@
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  .bg-brand-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-primary-light) 0%,
+      var(--color-primary) 50%,
+      var(--color-primary-deep) 100%
+    );
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-primary-light),
+      var(--color-primary),
+      var(--color-primary-deep)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .shadow-brand {
+    box-shadow: 0 12px 30px -10px color-mix(in oklab, var(--color-primary) 45%, transparent);
   }
 }
 

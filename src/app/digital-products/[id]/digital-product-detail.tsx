@@ -142,7 +142,7 @@ export function DigitalProductDetail({ product }: { product: DigitalProduct }) {
               <p className="text-xs text-muted-foreground">{selectedVariant ? "Plan price" : "Price"}</p>
               <p className="text-2xl font-bold text-foreground">{formatMmk(displayPrice)}</p>
             </div>
-            <Button size="lg" onClick={handleOrder} disabled={isOrdering || !product.inStock} className="gap-2 font-semibold">
+            <Button size="lg" onClick={handleOrder} disabled={isOrdering || !product.inStock} className="bg-brand-gradient shadow-brand hover:brightness-105 gap-2 font-semibold">
               {isOrdering ? "..." : <><ShoppingCart className="h-4 w-4" /> Buy Now</>}
             </Button>
           </div>
